@@ -1,6 +1,6 @@
 from app.keyboards import (welcome_menu_keyboard, signed_user_menu_keyboard,
                            unsinged_user_menu_keyboard, help_keyboard,
-                           other_help_keyboard, login_keyboard)
+                           login_keyboard)
 from app.fp_api_manager import get_fp_post, get_current_user_profile
 
 """
@@ -12,7 +12,8 @@ the Dispatcher and registered at their respective places.
 def start(update, context):
     """Send a message to the user when the command /start is issued."""
     update.message.reply_text('Hi! Welcome!' + '\nWe are FightPandemics.' + '\nA place to offer and request help.' +
-                              '\n' + '\nWhat would you like to do?',
+                              '\nPandemics will continue to happen.'+'\nWe help communities prepare and respond.'
+                                                                    '\n'+ '\nWhat would you like to do?',
                               reply_markup=welcome_menu_keyboard())
 
 
@@ -29,7 +30,7 @@ def main_menu(update, context):
     # user = update.message.from_user
     if 'logged_in' in context.user_data and context.user_data['logged_in']:
         update.message.reply_text(
-            text='Main Menu: What would you like to do?',
+            text='This is main menu, What would you like to do?',
             reply_markup=signed_user_menu_keyboard())
     else:
         update.effective_message.reply_text(
@@ -79,15 +80,10 @@ def request_help(update, context):
         reply_markup=help_keyboard())
 
 
-def offer_help_menu(update, context):
+def offer_help(update, context):
     update.effective_message.reply_text(
-        text="What type of help would you like to offer?",
+        text="What type of help would you like to offer? Please choose all the relevant tags",
         reply_markup=help_keyboard())
 
 
-def show_offer_other_help_menu(update, context):
-    # query = update.callback_query
-    # query.answer()
-    update.effective_message.reply_text(
-        text="What type of other help would you like to offer?",
-        reply_markup=other_help_keyboard())
+

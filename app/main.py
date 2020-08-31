@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def help_command(update, context):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('Do you want to offer help or request help? Type /mainmenu command for more details.')
+    update.message.reply_text('Do you want to request help or offer help? Type /mainmenu command for more details.')
 
 
 # noncommand i.e message - echo/repeat the message on Telegram
@@ -29,6 +29,7 @@ def echo(update, context):
 
 # we use the reply_text method, replying with update.message.text sends the message chat text back to the user.
 # For example hi, bye etc.
+
 
 ################################ main #############################################
 def main():
@@ -65,9 +66,8 @@ def main():
 
     updater.dispatcher.add_handler(CallbackQueryHandler(main_menu, pattern='menu'))
     updater.dispatcher.add_handler(CallbackQueryHandler(about, pattern='about'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(offer_help_menu, pattern='offer_help'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(offer_help, pattern='offer_help'))
     updater.dispatcher.add_handler(CallbackQueryHandler(request_help, pattern='request_help'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(show_offer_other_help_menu, pattern='offer_other_help'))
     updater.dispatcher.add_handler(CallbackQueryHandler(login_fp, pattern='login_fp'))
     # updater.dispatcher.add_handler(CallbackQueryHandler(signup_fp, pattern='signup'))
     updater.dispatcher.add_handler(CallbackQueryHandler(view_posts, pattern='view_posts'))
