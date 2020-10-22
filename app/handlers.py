@@ -1,6 +1,9 @@
-from app.keyboards import (start_menu_keyboard, signed_user_menu_keyboard,
-                           unsigned_user_menu_keyboard, help_keyboard, keyboard_checklist)
-from app.fp_api_manager import get_user_posts, get_current_user_profile, login_fp
+import logging
+
+from keyboards import *
+from fp_api_manager import get_user_posts, get_current_user_profile, login_fp
+
+from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           CallbackQueryHandler, ConversationHandler)
 
@@ -12,6 +15,10 @@ Define command handlers which take two required arguments: update and context
 update.message.reply_text automatically adds the reply only to the specific chat.
 """
 
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 def help_command(update, context):
     """Send a message when the command /help is issued."""
@@ -162,20 +169,23 @@ user_help_keyboard = help_keyboard()
 
 def offer_help(update, context):
     update = update.callback_query
+
     if update.data != 'done':
         update.edit_message_reply_markup(reply_markup=keyboard_checklist(user_help_keyboard, update.data))
         return HELP
+
     else:
-        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n' \
-                'You can share your location by clicking on the send your location button at the bottom!')
+        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n' 'You can share your location by clicking on the send your location button at the bottom!')
+
         return LOCATION
 
-
 def location(update, context):
-    update = update.callback_query
-
-    return LOCATION
-
+    user = update.message.from_user
+    user_location = update.message.location
+    
+    logger.info("Location of %s: %f / %f", user.first_name, user_location.latitude,
+                user_location.longitude)
+    
 
 def offer_help_conv_handler():
     conv_handler = ConversationHandler(
@@ -184,10 +194,9 @@ def offer_help_conv_handler():
             HELP: [
                 CallbackQueryHandler(offer_help)
             ],
-            LOCATION: [
-                    MessageHandler(Filters.text & ~(Filters.command), location)
-            ],
+            LOCATION: [MessageHandler(Filters.location, location)],
         },
+
         fallbacks=[CommandHandler('start', start)]
 
     )
