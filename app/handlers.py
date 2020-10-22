@@ -156,10 +156,21 @@ def view_profile(update, context):
 def request_help(update, context):
     """Send a message when the command /start is issued."""
 
-    # update.message.reply_text('what kind of help do you want?')
+    ''' update.message.reply_text('what kind of help do you want?')
     update.effective_message.reply_text(
         text="what kind of help do you want?",
-        reply_markup=help_keyboard())
+        reply_markup=help_keyboard())'''
+    update = update.callback_query
+
+    if update.data != 'done':
+        update.edit_message_reply_markup(reply_markup=keyboard_checklist(user_help_keyboard, update.data))
+        
+        return HELP
+
+    else:
+        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n\n' 'You can share your location by clicking on the attachment button and then choose to \n 1 - Send Live Location \n 2 - Send Custom Location Manually')
+
+        return LOCATION
 
 
 #### offer help flow #####
@@ -175,7 +186,7 @@ def offer_help(update, context):
         return HELP
 
     else:
-        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n' 'You can share your location by clicking on the send your location button at the bottom!')
+        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n\n' 'You can share your location by clicking on the attachment button and then choose to \n 1 - Send Live Location \n 2 - Send Custom Location Manually')
 
         return LOCATION
 
@@ -189,10 +200,10 @@ def location(update, context):
 
 def offer_help_conv_handler():
     conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(offer_help, pattern='offer_help')],
+        entry_points=[CallbackQueryHandler(request_help, pattern='request_help')],
         states={
             HELP: [
-                CallbackQueryHandler(offer_help)
+                CallbackQueryHandler(request_help)
             ],
             LOCATION: [MessageHandler(Filters.location, location)],
         },
