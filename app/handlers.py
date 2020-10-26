@@ -1,6 +1,7 @@
 from app.keyboards import (start_menu_keyboard, signed_user_menu_keyboard,
                            unsigned_user_menu_keyboard, help_keyboard, keyboard_checklist,
-                           confirm_location_keyboard, get_location_keyboard_markup)
+                           confirm_location_keyboard, get_location_keyboard_markup,
+                           view_posts_keyboard, create_post_keyboard)
 from app.fp_api_manager import get_user_posts, get_current_user_profile, login_fp, get_posts
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           CallbackQueryHandler, ConversationHandler)
@@ -14,7 +15,7 @@ update.message.reply_text automatically adds the reply only to the specific chat
 """
 
 USERNAME_INPUT, PASSWORD_INPUT = map(chr, range(2))
-HELP, LOCATION, SHOWPOST = map(chr, range(2,5))
+HELP, LOCATION, SHOWPOST = map(chr, range(2, 5))
 
 
 def help_command(update, context):
@@ -210,21 +211,25 @@ def location(update, context):
     return SHOWPOST
 
 
-def view_posts(update, context):
+def view_posts(update: object, context):
     """ Display the relevant posts to the user based on location, type of help.
     Display title of post, actual post(limited information), and comments on posts of user"""
     list_to_display = []
     filter_params_dict = {'type': context.user_data['type']}
     posts_json = get_posts(filter_params_dict, objective='request')
+    post_categories = ", ".join(context.user_data['type'])
     for idx, post in enumerate(posts_json):
         list_to_display.append(str(idx + 1) + ". " + post['title'] + "- " +
                                post['content'] + "- " +
                                str(post['commentsCount']) + " comments")
     if list_to_display:
-        update.effective_message.reply_text(text="\n".join(list_to_display))
+        reply_text = "Viewing offer posts for {} help category. \n\n {}".format(
+            post_categories, ", ".join(list_to_display))
+        update.effective_message.reply_text(text=reply_text, reply_markup=view_posts_keyboard())
+
     else:
-        post_categories = ", ".join(context.user_data['type'])
-        update.effective_message.reply_text(text="No post found for {} category. Please create a new post.".format(post_categories))
+        reply_text = "No post found for {} category. \n Please create a new post.".format(post_categories)
+        update.effective_message.reply_text(text=reply_text, reply_markup=create_post_keyboard())
     del context.user_data['type']
     return ConversationHandler.END
 

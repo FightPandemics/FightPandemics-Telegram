@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,\
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, \
     ReplyKeyboardMarkup, ReplyKeyboardRemove
 import emoji
 
@@ -14,25 +14,25 @@ def start_menu_keyboard():
 
 def help_keyboard():
     keyboard = [[InlineKeyboardButton('Groceries/food', callback_data='Groceries/food'),
-                InlineKeyboardButton('Medical Supplies', callback_data='Medical Supplies'),
-                InlineKeyboardButton('Funding/Donate', callback_data='Funding/Donate')],
+                 InlineKeyboardButton('Medical Supplies', callback_data='Medical Supplies'),
+                 InlineKeyboardButton('Funding/Donate', callback_data='Funding/Donate')],
                 [InlineKeyboardButton('Well-being/Mental', callback_data='Well-being/Mental'),
-                InlineKeyboardButton('Information', callback_data='Information'),
-                InlineKeyboardButton('Technology', callback_data='Technology')],
+                 InlineKeyboardButton('Information', callback_data='Information'),
+                 InlineKeyboardButton('Technology', callback_data='Technology')],
                 [InlineKeyboardButton('Legal', callback_data='Legal'),
-                InlineKeyboardButton('Education', callback_data='Education'),
-                InlineKeyboardButton('Business', callback_data='Business')],
+                 InlineKeyboardButton('Education', callback_data='Education'),
+                 InlineKeyboardButton('Business', callback_data='Business')],
                 [InlineKeyboardButton('Done', callback_data='done')]]
     return InlineKeyboardMarkup(keyboard)
 
 
 def signed_user_menu_keyboard():
     keyboard = [[InlineKeyboardButton('Offer Help', callback_data='offer_help'),
-                InlineKeyboardButton('Request Help', callback_data='request_help')],
+                 InlineKeyboardButton('Request Help', callback_data='request_help')],
                 [InlineKeyboardButton('View My Posts', callback_data='view_posts'),
-                InlineKeyboardButton('View My Profile', callback_data='view_profile')],
+                 InlineKeyboardButton('View My Profile', callback_data='view_profile')],
                 [InlineKeyboardButton('Create posts', callback_data='create_posts'),
-                InlineKeyboardButton('About FightPandemics', callback_data='about')],
+                 InlineKeyboardButton('About FightPandemics', callback_data='about')],
                 [InlineKeyboardButton('Signout', callback_data='signout')]]
 
     return InlineKeyboardMarkup(keyboard)
@@ -40,11 +40,11 @@ def signed_user_menu_keyboard():
 
 def unsigned_user_menu_keyboard():
     keyboard = [[InlineKeyboardButton('Offer Help', callback_data='offer_help'),
-                InlineKeyboardButton('Request Help', callback_data='request_help')],
+                 InlineKeyboardButton('Request Help', callback_data='request_help')],
                 [InlineKeyboardButton('View My Posts', callback_data='view_posts'),
-                InlineKeyboardButton('View My Profile', callback_data='view_profile')],
+                 InlineKeyboardButton('View My Profile', callback_data='view_profile')],
                 [InlineKeyboardButton('Create posts', callback_data='create_posts'),
-                InlineKeyboardButton('About FightPandemics', callback_data='about')],
+                 InlineKeyboardButton('About FightPandemics', callback_data='about')],
                 [InlineKeyboardButton('Login', callback_data='login')]]
     return InlineKeyboardMarkup(keyboard)
 
@@ -69,7 +69,7 @@ def keyboard_checklist(user_help_keyboard, input_data):
 
 def confirm_location_keyboard():
     keyboard = [[InlineKeyboardButton('Confirm', callback_data='view_posts'),
-                InlineKeyboardButton('Type in New Location', callback_data='location')]]
+                 InlineKeyboardButton('Type in New Location', callback_data='location')]]
     return InlineKeyboardMarkup(keyboard)
 
 
@@ -82,3 +82,16 @@ def get_location_keyboard_markup():
     return reply_markup
 
 
+def view_posts_keyboard():
+    keyboard = [[InlineKeyboardButton('1',callback_data='1'),
+                 InlineKeyboardButton('2',callback_data='2'),
+                 InlineKeyboardButton('3',callback_data='3'),
+                 InlineKeyboardButton('4',callback_data='4'),
+                 InlineKeyboardButton('5',callback_data='5')],
+                [InlineKeyboardButton('Create Post', callback_data='create_posts')]]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def create_post_keyboard():
+    keyboard = [[InlineKeyboardButton('Create Post', callback_data='create_posts')]]
+    return InlineKeyboardMarkup(keyboard)

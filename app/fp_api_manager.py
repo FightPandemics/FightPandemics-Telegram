@@ -45,7 +45,8 @@ def get_posts(filter_params_dict, objective):
 
     payload = {
         "filter": encoded_filters,
-        "objective": objective
+        "objective": objective,
+        "limit": 10
     }
     headers = {'content-type': 'application/json'}
     s = requests.Session()
