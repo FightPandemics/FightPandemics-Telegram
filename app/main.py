@@ -26,23 +26,20 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("mainmenu", main_menu))
-
+    # dp.add_handler(CommandHandler("viewposts",view_posts))
     dp.add_handler(login_handler())
     dp.add_handler(offer_help_conv_handler())
-
 
     ########################  update dispatcher  #########################################################
 
     # we’ll use the dispatcher to add commands.
-    updater.dispatcher.add_handler(CallbackQueryHandler(main_menu, pattern='menu'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(about, pattern='about'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(offer_help, pattern='offer_help'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(request_help, pattern='request_help'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(login, pattern='login'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(view_posts, pattern='view_posts'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(view_profile, pattern='view_profile'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(create_posts, pattern='create_posts'))
-
+    dp.add_handler(CallbackQueryHandler(main_menu, pattern='menu'))
+    dp.add_handler(CallbackQueryHandler(about, pattern='about'))
+    dp.add_handler(CallbackQueryHandler(request_help, pattern='request_help'))
+    dp.add_handler(CallbackQueryHandler(login, pattern='login'))
+    #dp.add_handler(CallbackQueryHandler(view_posts, pattern='view_posts'))
+    dp.add_handler(CallbackQueryHandler(view_profile, pattern='view_profile'))
+    dp.add_handler(CallbackQueryHandler(create_posts, pattern='create_posts'))
 
     # To start polling Telegram for any chat updates on Telegram
     updater.start_polling()

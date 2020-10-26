@@ -1,4 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,\
+    ReplyKeyboardMarkup, ReplyKeyboardRemove
 import emoji
 
 
@@ -48,29 +49,36 @@ def unsigned_user_menu_keyboard():
     return InlineKeyboardMarkup(keyboard)
 
 
-def keyboard_checklist(help_keyboard, input_data):
-    outer_length = len(help_keyboard["inline_keyboard"])
+def keyboard_checklist(user_help_keyboard, input_data):
+    outer_length = len(user_help_keyboard.inline_keyboard)
     for i in range(outer_length):
-        inner_length = len(help_keyboard["inline_keyboard"][i])
+        inner_length = len(user_help_keyboard.inline_keyboard[i])
         for j in range(inner_length):
-            if help_keyboard["inline_keyboard"][i][j]["text"] == input_data:
-                help_keyboard["inline_keyboard"][i][j] = InlineKeyboardButton(
-                    emoji.emojize(input_data + ' :thumbs_up:'),
+            if user_help_keyboard.inline_keyboard[i][j]["text"] == input_data:
+                user_help_keyboard.inline_keyboard[i][j] = InlineKeyboardButton(
+                    emoji.emojize(input_data + ' :rocket: '),
                     callback_data=input_data)
 
-                return help_keyboard
-            if help_keyboard["inline_keyboard"][i][j]["text"] == emoji.emojize(input_data + ' :thumbs_up:'):
-                help_keyboard["inline_keyboard"][i][j] = InlineKeyboardButton(input_data, callback_data=input_data)
-                return help_keyboard
+                return user_help_keyboard
+            if user_help_keyboard.inline_keyboard[i][j]["text"] == emoji.emojize(input_data + ' :rocket: '):
+                user_help_keyboard.inline_keyboard[i][j] = InlineKeyboardButton(input_data, callback_data=input_data)
+                return user_help_keyboard
 
-    return help_keyboard
+    return user_help_keyboard
 
 
-# can be used later
-# def help_keyboard():
-#     keyboard = [[InlineKeyboardButton('Medical Help', callback_data='medical_help')],
-#                 [InlineKeyboardButton('Other Help', callback_data='other_help')],
-#                 [InlineKeyboardButton('Go to Main Menu', callback_data='main_menu')]]
-#     return InlineKeyboardMarkup(keyboard)
+def confirm_location_keyboard():
+    keyboard = [[InlineKeyboardButton('Confirm', callback_data='view_posts'),
+                InlineKeyboardButton('Type in New Location', callback_data='location')]]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def get_location_keyboard_markup():
+    location_keyboard = KeyboardButton(text="Send Live Location",
+                                       request_location=True)  # creating location button object
+    custom_keyboard = [[location_keyboard]]  # creating keyboard object
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+    # ReplyKeyboardRemove(custom_keyboard, remove_keyboard=True)
+    return reply_markup
 
 
