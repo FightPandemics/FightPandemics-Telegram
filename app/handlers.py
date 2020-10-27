@@ -1,6 +1,6 @@
 from app.keyboards import (start_menu_keyboard, signed_user_menu_keyboard,
                            unsigned_user_menu_keyboard, help_keyboard, keyboard_checklist,
-                           confirm_location_keyboard, get_location_keyboard_markup,
+                           confirm_location_keyboard, get_location_keyboard_markup, share_location_keyboard,
                            view_posts_keyboard, create_post_keyboard)
 from app.fp_api_manager import get_user_posts, get_current_user_profile, login_fp, get_posts
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
@@ -15,7 +15,7 @@ update.message.reply_text automatically adds the reply only to the specific chat
 """
 
 USERNAME_INPUT, PASSWORD_INPUT = map(chr, range(2))
-HELP, LOCATION, SHOWPOST = map(chr, range(2, 5))
+HELP, LOCATION_CONSENT, LOCATION, SHOWPOST = map(chr, range(2, 6))
 
 
 def help_command(update, context):
@@ -157,8 +157,6 @@ def password_choice(update, context):
 
 #### offer help flow #####
 
-user_help_keyboard = help_keyboard()
-
 
 def offer_help_conv_handler():
     conv_handler = ConversationHandler(
@@ -168,8 +166,12 @@ def offer_help_conv_handler():
             HELP: [
                 CallbackQueryHandler(offer_help)
             ],
+            LOCATION_CONSENT: [
+                CallbackQueryHandler(location)
+            ],
             LOCATION: [
-                MessageHandler(Filters.location, location)
+                MessageHandler(Filters.location, confirm_location),
+                CallbackQueryHandler(confirm_location)
             ],
             SHOWPOST: [
                 CallbackQueryHandler(view_posts)
@@ -182,32 +184,41 @@ def offer_help_conv_handler():
 
 
 def offer_help(update, context):
-    global user_help_keyboard
-    if user_help_keyboard is None:
-        user_help_keyboard = help_keyboard()
+    user_help_keyboard = help_keyboard()
     update_callback = update.callback_query
     if update_callback.data != 'done':
         if 'type' not in context.user_data:
             context.user_data['type'] = []
-        if update_callback.data != 'offer_help':
+        if update_callback.data == 'offer_help':
+            context.bot.send_message(chat_id=update_callback.message.chat_id,
+                                     text='What type of help would you like to offer?'
+                                          ' Please choose all the relevant tags and click done',
+                                     reply_markup=user_help_keyboard)
+        else:
             context.user_data['type'].append(update_callback.data)
-
-        update_callback.edit_message_reply_markup(
-            text='What type of help would you like to offer? Please choose all the relevant tags?',
-            reply_markup=keyboard_checklist(user_help_keyboard, update_callback.data))
+            update_callback.edit_message_reply_markup(
+                text='What type of help would you like to offer? Please choose all the relevant tags and click done',
+                reply_markup=keyboard_checklist(user_help_keyboard, context.user_data['type']))
         return HELP
+
     else:
-        location_text = 'Please let us know your location so we can display the posts of your area!\n' \
-                        'You can share your location by clicking on the send your location button at the bottom!'
-        reply_markup = get_location_keyboard_markup()
+        location_text = 'Please let us know your location so we can show the posts of your area!\n'
+        reply_markup = share_location_keyboard()
         context.bot.send_message(chat_id=update_callback.message.chat_id, text=location_text, reply_markup=reply_markup)
-        return LOCATION
+        return LOCATION_CONSENT
 
 
 def location(update, context):
-    text_location = "Your current location is shown above. Do you want to offer help in the same area."
-    location_confirm_markup = confirm_location_keyboard()
-    context.bot.send_message(chat_id=update.message.chat_id, text=text_location, reply_markup=location_confirm_markup)
+    text_location = "You can share your location by clicking on the send your location button at the bottom!"
+    reply_markup = get_location_keyboard_markup()
+    context.bot.send_message(chat_id=update.callback_query.message.chat_id, text=text_location, reply_markup=reply_markup)
+    return LOCATION
+
+
+def confirm_location(update, context):
+    text = "Your current location is shown above. Do you want to offer help in the same area."
+    reply_markup = confirm_location_keyboard()
+    context.bot.send_message(chat_id=update.message.chat_id, text=text, reply_markup=reply_markup)
     return SHOWPOST
 
 
@@ -228,13 +239,13 @@ def view_posts(update: object, context):
         update.effective_message.reply_text(text=reply_text, reply_markup=view_posts_keyboard())
 
     else:
-        reply_text = "No post found for {} category. \n Please create a new post.".format(post_categories)
+        reply_text = "No post found for {} category. \nPlease create a new post.".format(post_categories)
         update.effective_message.reply_text(text=reply_text, reply_markup=create_post_keyboard())
     del context.user_data['type']
     return ConversationHandler.END
 
 
-def create_posts(update, context):
+def create_post(update, context):
     if "token" in context.user_data:
         token = context.user_data["token"]
         user_profile_json = get_current_user_profile(token=token)

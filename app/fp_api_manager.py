@@ -50,7 +50,6 @@ def get_posts(filter_params_dict, objective):
     }
     headers = {'content-type': 'application/json'}
     s = requests.Session()
-    #s.headers['Authorization'] = 'Bearer {}'.format(token)
     response = s.get(url, params=payload, headers=headers)
 
     if response.status_code == 200:
