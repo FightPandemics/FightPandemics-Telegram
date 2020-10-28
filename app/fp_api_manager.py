@@ -54,8 +54,19 @@ def get_posts(filter_params_dict, objective):
 
     if response.status_code == 200:
         return response.json()
+
+def get_fp_post(token):
+    url = FP_BASE_URL+"posts"
+
+    s = requests.Session()
+    s.headers['Authorization'] = 'Bearer {}'.format(token)
+    req = s.get(url)
+
+    if req.status_code == 200:
+        return req.json()
     else:
         return "Unable to connect to FightPandemics"
+
 
 
 def get_user_posts(user_id):
@@ -81,7 +92,7 @@ def get_current_user_profile(token):
     else:
         return "Unable to connect to FightPandemics"
 
-
+      
 def get_user_location(latitude, longitude):
     payload = {
         'lat': latitude,
@@ -97,6 +108,4 @@ def get_user_location(latitude, longitude):
 
 
 if __name__ == "__main__":
-    # get_user_posts('5f3d54538689251600c5d399')
-    #print(get_user_location(42.349367, -71.083636))
     print(get_posts({"type": ["Medical Supplies"]}))

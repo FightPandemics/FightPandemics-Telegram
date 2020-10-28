@@ -14,8 +14,10 @@ Define command handlers which take two required arguments: update and context
 update.message.reply_text automatically adds the reply only to the specific chat.
 """
 
+
 USERNAME_INPUT, PASSWORD_INPUT = map(chr, range(2))
 HELP, LOCATION_CONSENT, LOCATION, SHOWPOST = map(chr, range(2, 6))
+
 
 
 def help_command(update, context):
@@ -28,6 +30,7 @@ def start(update, context):
     """Send a message to the user when the command /start is issued."""
 
     start_message = "\n".join(['Hi! Welcome!',
+
                                'We are FightPandemics.',
                                'A place to offer and request help.',
                                'Pandemics will continue to happen.',
@@ -110,6 +113,27 @@ def login_handler():
         entry_points=[CallbackQueryHandler(login, pattern='login')],
 
         states={
+          
+            text='This is main menu, What would you like to do?',
+            reply_markup=signed_user_menu_keyboard())
+    else:
+        update.effective_message.reply_text(
+            text='Main Menu: What would you like to do?',
+            reply_markup=unsigned_user_menu_keyboard())
+
+
+########## Issue 5: Login integration using conversation handler ##########
+
+
+USERNAME_INPUT, PASSWORD_INPUT = range(2)
+
+
+def login_handler():
+    conv_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(login, pattern='login')],
+
+        states={
+
             USERNAME_INPUT: [
                 MessageHandler(Filters.text & ~(Filters.command),
                                username_choice)],
@@ -119,10 +143,11 @@ def login_handler():
                                password_choice)],
         },
         fallbacks=[CommandHandler("mainmenu", main_menu)],
+
         name="my_conversation"
     )
     return login_conv_handler
-
+          
 
 def login(update, context):
     reply_text = "Please provide your username:"
@@ -247,6 +272,96 @@ def view_posts(update: object, context):
 
 def create_post(update, context):
     if "token" in context.user_data:
+            text="Incorrect username, password combination. Please try to login again",reply_markup=unsigned_user_menu_keyboard())
+
+
+def view_posts(update, context):
+    """ Display the title of post, actual post(limited information), and comments on posts of user"""
+
+    list_to_display = []
+    posts_json = get_user_posts()
+    for idx, post in enumerate(posts_json):
+        list_to_display.append(str(idx + 1) + ". " + post['title'] + "- " +
+                               post['content'] + "- " +
+                               str(post['commentsCount']) + " comments")
+
+    update.effective_message.reply_text(
+            text="\n".join(list_to_display))
+
+
+def view_profile(update, context):
+    """ Display user profile"""
+
+    if "token" in context.user_data:
+        user_info_list = []
+        token = context.user_data["token"]
+        user_profile_json = get_current_user_profile(token=token)
+        print(user_profile_json)
+        user_info_list.append("Name: " + user_profile_json['firstName'] + " " + user_profile_json['lastName'])
+        is_volunteer = "No"
+        if user_profile_json['objectives']['volunteer']:
+            is_volunteer = "Yes"
+
+        user_info_list.append("Volunteer : " + is_volunteer)
+        update.effective_message.reply_text(
+            text="\n".join(user_info_list))
+
+    else:
+        update.effective_message.reply_text("Please login to view your profile")
+
+
+def request_help(update, context):
+    """Send a message when the command /start is issued."""
+
+    # update.message.reply_text('what kind of help do you want?')
+    update.effective_message.reply_text(
+        text="what kind of help do you want?",
+        reply_markup=help_keyboard())
+
+
+#### offer help flow #####
+HELP, LOCATION = range(2)
+user_help_keyboard = help_keyboard()
+
+
+def offer_help(update, context):
+    update = update.callback_query
+    if update.data != 'done':
+        update.edit_message_reply_markup(reply_markup=keyboard_checklist(user_help_keyboard, update.data))
+        return HELP
+    else:
+        update.message.reply_text('Please let us know your location so we can share the resources closest to you!\n' \
+                'You can share your location by clicking on the send your location button at the bottom!')
+        return LOCATION
+
+
+def location(update, context):
+    update = update.callback_query
+
+    return LOCATION
+
+
+def offer_help_conv_handler():
+    conv_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(offer_help, pattern='offer_help')],
+        states={
+            HELP: [
+                CallbackQueryHandler(offer_help)
+            ],
+            LOCATION: [
+                    MessageHandler(Filters.text & ~(Filters.command), location)
+            ],
+        },
+        fallbacks=[CommandHandler('start', start)]
+
+    )
+    return conv_handler
+
+
+def create_post(update,context):
+    if "token" in context.user_data:
+        user_info_list = []
+
         token = context.user_data["token"]
         user_profile_json = get_current_user_profile(token=token)
     else:

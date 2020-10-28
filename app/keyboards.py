@@ -14,6 +14,7 @@ def start_menu_keyboard():
 
 def help_keyboard():
     keyboard = [[InlineKeyboardButton('Groceries/food', callback_data='Groceries/food'),
+
                  InlineKeyboardButton('Medical Supplies', callback_data='Medical Supplies'),
                  InlineKeyboardButton('Funding/Donate', callback_data='Funding/Donate')],
                 [InlineKeyboardButton('Well-being/Mental', callback_data='Well-being/Mental'),
@@ -45,6 +46,7 @@ def unsigned_user_menu_keyboard():
                  InlineKeyboardButton('View My Profile', callback_data='view_profile')],
                 [InlineKeyboardButton('Create Post', callback_data='create_post'),
                  InlineKeyboardButton('About FightPandemics', callback_data='about')],
+
                 [InlineKeyboardButton('Login', callback_data='login')]]
     return InlineKeyboardMarkup(keyboard)
 
@@ -103,3 +105,23 @@ def share_location_keyboard():
     keyboard = [[InlineKeyboardButton('Yes, I would like to share my live location', callback_data='confirm_location')],
                 [InlineKeyboardButton('I will enter my address manually', callback_data='location')]]
     return InlineKeyboardMarkup(keyboard)
+  
+  
+def keyboard_checklist(help_keyboard, input_data):
+    outer_length = len(help_keyboard["inline_keyboard"])
+    for i in range(outer_length):
+        inner_length = len(help_keyboard["inline_keyboard"][i])
+        for j in range(inner_length):
+            if help_keyboard["inline_keyboard"][i][j]["text"] == input_data:
+                help_keyboard["inline_keyboard"][i][j] = InlineKeyboardButton(
+                    emoji.emojize(input_data + ' :thumbs_up:'),
+                    callback_data=input_data)
+
+                return help_keyboard
+            if help_keyboard["inline_keyboard"][i][j]["text"] == emoji.emojize(input_data + ' :thumbs_up:'):
+                help_keyboard["inline_keyboard"][i][j] = InlineKeyboardButton(input_data, callback_data=input_data)
+                return help_keyboard
+
+    return help_keyboard
+
+

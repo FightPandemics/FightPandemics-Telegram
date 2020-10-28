@@ -26,7 +26,6 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("mainmenu", main_menu))
-    # dp.add_handler(CommandHandler("viewposts",view_posts))
     dp.add_handler(login_handler())
     dp.add_handler(offer_help_conv_handler())
 
