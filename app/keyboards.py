@@ -88,9 +88,9 @@ def view_posts_keyboard():
                  InlineKeyboardButton('8', callback_data='8'),
                  InlineKeyboardButton('9', callback_data='9'),
                  InlineKeyboardButton('10', callback_data='10')],
-                [InlineKeyboardButton('<-- Previous', callback_data='previous_page'),
+                [InlineKeyboardButton('<- Previous', callback_data='previous_page'),
                  InlineKeyboardButton('Create Post', callback_data='create_post'),
-                 InlineKeyboardButton('Next --> ', callback_data='next_page')]]
+                 InlineKeyboardButton('Next -> ', callback_data='next_page')]]
     return InlineKeyboardMarkup(keyboard)
 
 

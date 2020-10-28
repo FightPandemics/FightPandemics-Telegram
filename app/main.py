@@ -39,7 +39,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(login, pattern='login'))
     #dp.add_handler(CallbackQueryHandler(view_posts, pattern='view_posts'))
     dp.add_handler(CallbackQueryHandler(view_profile, pattern='view_profile'))
-    dp.add_handler(CallbackQueryHandler(create_posts, pattern='create_posts'))
+    dp.add_handler(CallbackQueryHandler(create_post, pattern='create_post'))
     dp.add_handler(CallbackQueryHandler(location, pattern="location"))
 
     # To start polling Telegram for any chat updates on Telegram
