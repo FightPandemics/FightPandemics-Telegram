@@ -1,2 +1,5 @@
-*app/__pycache__/*
 *.idea
+.eggs/
+chatbot/app/__pycache__/*
+*/__pycache__/*
+FightPandemics_Telegram_bot.egg-info/

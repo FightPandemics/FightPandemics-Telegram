@@ -6,21 +6,21 @@
 For Docker Setup we follow the steps mentioned on 
 https://github.com/FightPandemics/FightPandemics#docker-setup
 
-2. Install Dependencies and python-telegram-bot framework.
+2. Install Dependencies.
 
 ```{bash}
-pip install python-telegram-bot
+python setup.py develop
 ```
-3. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in app/constants.py file 
+
+3. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in chatbot/app/constants.py file 
    
    Follow the below steps which are already mentioned in the main.py file in the package.
  - Import logging library to connect and authenticate bot with Telegram API
- - Update the `TELEGRAM_TOKEN` in the updater object in the main() function in main.py to start the bot.
  - To add functionalities first we need to define function then create handlers such as command handlers, message handlers and register it in the dispatcher. 
  As soon as we add new handlers to dispatcher, they are in effect.
 
 ```{bash}
-python app/main.py
+ python chatbot/main.py
  ```
  
 ### Package Structure 

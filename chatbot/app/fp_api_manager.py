@@ -1,6 +1,6 @@
 import requests
 import json
-from app.constants import FP_BASE_URL
+from chatbot.app import FP_BASE_URL
 
 
 def login_fp(email, password):
