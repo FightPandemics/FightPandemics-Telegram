@@ -35,46 +35,38 @@ def create_fp_account(email, password):
         print(p.content)
 
 
-def get_posts(filter_params_dict, objective):
-    url = FP_BASE_URL + "posts"
-
-    # To emulate JSON.stringify behavior
-    # https://github.com/FightPandemics/FightPandemics/blob/8a749609d580c9c23c5ec7fa64f44daa568f9467/client/src/pages/Feed.js#L445
-    encoded_filters = json.dumps(filter_params_dict, separators=(',', ':'))
-    print(encoded_filters)
-
+def post_comment(token, user_id, post_id, content):
     payload = {
-        "filter": encoded_filters,
-        "objective": objective,
-        "limit": 10
+        "actorId": user_id,
+        "content": content
     }
+    url = FP_BASE_URL + "posts/{}/comments".format(post_id)
     headers = {'content-type': 'application/json'}
-    s = requests.Session()
-    response = s.get(url, params=payload, headers=headers)
-
-    if response.status_code == 200:
-        return response.json()
-
-def get_fp_post(token):
-    url = FP_BASE_URL+"posts"
 
     s = requests.Session()
     s.headers['Authorization'] = 'Bearer {}'.format(token)
-    req = s.get(url)
+    req = s.post(url, data=json.dumps(payload), headers=headers)
 
     if req.status_code == 200:
+        print(req.content)
         return req.json()
     else:
         return "Unable to connect to FightPandemics"
 
 
-
-def get_user_posts(user_id):
+def get_posts(payload):
     url = FP_BASE_URL + "posts"
+    headers = {'content-type': 'application/json'}
+    s = requests.Session()
+    response = s.get(url, params=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json()
 
+
+def get_post(post_id):
+    url = FP_BASE_URL + "posts/" + post_id
     s = requests.Session()
     req = s.get(url)
-
     if req.status_code == 200:
         return req.json()
     else:
@@ -82,7 +74,7 @@ def get_user_posts(user_id):
 
 
 def get_current_user_profile(token):
-    url = FP_BASE_URL + "/users/current"
+    url = FP_BASE_URL + "users/current"
     s = requests.Session()
     s.headers['Authorization'] = 'Bearer {}'.format(token)
     req = s.get(url)
@@ -92,7 +84,7 @@ def get_current_user_profile(token):
     else:
         return "Unable to connect to FightPandemics"
 
-      
+
 def get_user_location(latitude, longitude):
     payload = {
         'lat': latitude,
@@ -105,7 +97,3 @@ def get_user_location(latitude, longitude):
         return response.json()
     else:
         return "Failed to fetch location"
-
-
-if __name__ == "__main__":
-    print(get_posts({"type": ["Medical Supplies"]}))

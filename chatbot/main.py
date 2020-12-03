@@ -25,17 +25,17 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help_command))
     dp.add_handler(CommandHandler("mainmenu", main_menu))
+
     dp.add_handler(login_handler())
     dp.add_handler(offer_help_conv_handler())
+    dp.add_handler(request_help_conv_handler())
 
     # we’ll use the dispatcher to add commands.
-    dp.add_handler(CallbackQueryHandler(main_menu, pattern='menu'))
     dp.add_handler(CallbackQueryHandler(about, pattern='about'))
-    dp.add_handler(CallbackQueryHandler(request_help, pattern='request_help'))
-    dp.add_handler(CallbackQueryHandler(login, pattern='login'))
-    dp.add_handler(CallbackQueryHandler(view_profile, pattern='view_profile'))
-    dp.add_handler(CallbackQueryHandler(create_post, pattern='create_post'))
-    dp.add_handler(CallbackQueryHandler(location, pattern="location"))
+    dp.add_handler(CallbackQueryHandler(signout, pattern='signout'))
+    dp.add_handler(CallbackQueryHandler(view_my_profile, pattern='view_my_profile'))
+    dp.add_handler(CallbackQueryHandler(view_my_posts, pattern='view_my_posts'))
+    dp.add_handler(CallbackQueryHandler(display_selected_post, pattern='display_selected_post'))
 
     # To start polling Telegram for any chat updates on Telegram
     updater.start_polling()
