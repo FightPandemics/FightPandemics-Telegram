@@ -12,7 +12,13 @@ https://github.com/FightPandemics/FightPandemics#docker-setup
 python setup.py develop
 ```
 
-3. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in chatbot/app/constants.py file 
+or if you have make
+
+```bash
+make install
+```
+
+3. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in chatbot/app/constants.py file (the other constants below are only needed to run the tests)
    
    Follow the below steps which are already mentioned in the main.py file in the package.
  - Import logging library to connect and authenticate bot with Telegram API
@@ -30,4 +36,19 @@ python setup.py develop
 - keyboards.py -> Keyboard Menus (Main menu, signed/unsigned user menu, help menu, etc.)
 - fp_api_manager.py -> FightPandemics backend api manager
  
- 
+### Testing
+To run the tests, update `API_ID`, `API_HASH` and `CHATBOT_NAME` in `chatbot/app/constants.py`. The API token you get by setting up an app to use for testing [here](https://my.telegram.org/apps).
+
+To run the test, first make sure you installed the chatbot and dependencies, see above.
+Then using [`make`](https://en.wikipedia.org/wiki/Make_(software)), simply do:
+```bash
+make tests
+```
+
+The first time you run the test you will need to input your phone number and a confirmation code. This will create a file `tests/end2end/fixtures/test_client.session` which you should keep secure. If you delete the file you will need to input the phone number and confirmation code again.
+
+### Linting
+To check the linting of the code do:
+```bash
+make lint
+```
