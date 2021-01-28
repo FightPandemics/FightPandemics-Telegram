@@ -195,10 +195,13 @@ def offer_help(update, context):
         if 'type' not in context.user_data:
             context.user_data['type'] = set()
         if update_callback.data == 'offer_help':
-            context.bot.send_message(chat_id=update_callback.message.chat_id,
-                                     text='What type of help would you like to offer?'
-                                          ' Please choose all the relevant tags and click done',
-                                     reply_markup=user_help_keyboard)
+            update_callback.answer()
+            context.bot.send_message(
+                chat_id=update_callback.message.chat_id,
+                text='What type of help would you like to offer?'
+                     ' Please choose all the relevant tags and click done',
+                reply_markup=user_help_keyboard,
+            )
         else:
             context.user_data['type'].add(update_callback.data)
             update_callback.edit_message_reply_markup(
@@ -320,6 +323,7 @@ def request_help(update, context):
         if 'type' not in context.user_data:
             context.user_data['type'] = set()
         if update_callback.data == 'request_help':
+            update_callback.answer()
             context.bot.send_message(chat_id=update_callback.message.chat_id,
                                      text='What type of help do you want?'
                                           ' Please choose all the relevant tags and click done',
