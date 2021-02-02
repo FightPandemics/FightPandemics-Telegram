@@ -3,7 +3,7 @@ class Post(object):
     def __init__(self, post_json):
         self.title = post_json['post']['title']
         self.author = post_json['post']['author']['name']
-        self.types = post_json['post']['types']
+        self.categories = post_json['post']['categories']
         self.content = post_json['post']['content']
         self.num_comments = str(post_json['numComments'])
         self.location = []
@@ -24,7 +24,7 @@ class Post(object):
         post_info = list()
         post_info.append(self.title)
         post_info.append('By {} - {}'.format(self.author, ", ".join(self.location)))
-        post_info.append(", ".join(self.types))
+        post_info.append(", ".join(self.categories))
         post_info.append(self.content)
         post_info.append(self.num_comments + " Comments")
         return "\n\n".join(post_info)
@@ -39,7 +39,7 @@ class UserPost(object):
     def __init__(self, post_json):
         self.title = post_json['title']
         self.author = post_json['author']['name']
-        self.types = post_json['types']
+        self.categories = post_json['categories']
         self.content = post_json['content']
         self.num_comments = str(post_json['commentsCount'])
         self.location = []

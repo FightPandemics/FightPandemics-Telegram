@@ -1,0 +1,11 @@
+class Pattern:
+    DONE = "done"
+    OFFER_HELP = "offer_help"
+    REQUEST_HELP = "request_help"
+    LOCATION = "location"
+    SHOWPOST = "showpost"
+    USERNAME_INPUT = "username_input"
+    PASSWORD_INPUT = "password_input"
+    CREATE_COMMENT = "create_comment"
+    SHOW_CURRENT_POST = "show_current_post"
+    CREATE_POST = "create_post"

@@ -1,5 +1,6 @@
 *.idea
 *.pyc
+*.bak*
 .eggs/
 chatbot/app/__pycache__/*
 */__pycache__/*

@@ -59,8 +59,10 @@ def get_posts(payload):
     headers = {'content-type': 'application/json'}
     s = requests.Session()
     response = s.get(url, params=payload, headers=headers)
-    if response.status_code == 200:
-        return response.json()
+    if response.status_code != 200:
+        # TODO What to do in this case?
+        raise RuntimeError("Wrong status code")
+    return response.json()
 
 
 def get_post(post_id):
