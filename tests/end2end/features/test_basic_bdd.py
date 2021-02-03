@@ -1,4 +1,3 @@
-from time import sleep
 import pytest_bdd as bdd
 bdd.scenarios('basic.feature')
 

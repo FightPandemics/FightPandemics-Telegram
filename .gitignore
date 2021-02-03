@@ -7,3 +7,4 @@ chatbot/app/__pycache__/*
 FightPandemics_Telegram_bot.egg-info/
 constants.py
 *.session
+todo.txt

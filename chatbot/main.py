@@ -1,8 +1,7 @@
-import sys
 import logging
 from argparse import ArgumentParser
 
-from telegram.ext import Updater  #, CommandHandler, CallbackQueryHandler
+from telegram.ext import Updater
 
 from chatbot.app import handlers, constants
 
@@ -33,15 +32,10 @@ def main(log_level="INFO"):
     dp.add_handler(handlers.MainMenuCmdHandler)
     dp.add_handler(handlers.StartCmdHandler)
     dp.add_handler(handlers.HelpCmdHandler)
-    # dp.add_handler(CommandHandler("start", handlers.start))
-    # dp.add_handler(CommandHandler("help", handlers.help_command))
-    # dp.add_handler(CommandHandler("mainmenu", handlers.main_menu))
 
     # Conversation handlers
     dp.add_handler(handlers.LoginConvHandler)
     dp.add_handler(handlers.CreatePostConvHandler)
-    # for pattern in ["request_help", "offer_help"]:
-    #     dp.add_handler(handlers.create_post_handler(pattern))
 
     # Callback query handlers
     dp.add_handler(handlers.AboutQueryHandler)
@@ -49,11 +43,6 @@ def main(log_level="INFO"):
     dp.add_handler(handlers.ViewMyProfileQueryHandler)
     dp.add_handler(handlers.ViewMyPostsQueryHandler)
     dp.add_handler(handlers.DisplaySelectedPostsQueryHandler)
-    # dp.add_handler(CallbackQueryHandler(handlers.about, pattern='about'))
-    # dp.add_handler(CallbackQueryHandler(handlers.signout, pattern='signout'))
-    # dp.add_handler(CallbackQueryHandler(handlers.view_my_profile, pattern='view_my_profile'))
-    # dp.add_handler(CallbackQueryHandler(handlers.view_my_posts, pattern='view_my_posts'))
-    # dp.add_handler(CallbackQueryHandler(handlers.display_selected_post, pattern='display_selected_post'))
 
     # To start polling Telegram for any chat updates on Telegram
     updater.start_polling()

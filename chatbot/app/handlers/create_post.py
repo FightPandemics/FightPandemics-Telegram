@@ -11,7 +11,6 @@ from chatbot.app import handlers, keyboards
 from chatbot.app.handlers import util
 from chatbot.app.patterns import Pattern
 from chatbot.app.user_data import CATEGORIES_KEY
-from chatbot.app.handlers import location
 
 
 class State(Enum):

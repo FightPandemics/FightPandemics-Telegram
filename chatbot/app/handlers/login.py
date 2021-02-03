@@ -78,8 +78,7 @@ def signout(update, context):
     """ Destroy Session"""
     keys = ['user_id', 'token', 'types', 'page_id', 'post_id']
     for key in keys:
-        if key in context.user_data:
-            del context.user_data[key]
+        context.user_data.pop(key, None)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="You have been signed out")
 

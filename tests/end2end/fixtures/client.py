@@ -2,7 +2,7 @@ import os
 from timeit import default_timer as timer
 
 import pytest
-from pyrogram import Client, raw
+from pyrogram import Client
 
 from chatbot.app.constants import API_ID, API_HASH, CHATBOT_NAME, TEST_BOT_TOKEN
 

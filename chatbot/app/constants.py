@@ -1,43 +1,49 @@
+import os
 import sys
+from yaml import load
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
-# Base URL
-FP_BASE_URL = "http://127.0.0.1:8000/api/"
 
-#################
-# Access tokens #
-########################################
-# You get this when setting up the bot #
-########################################
-TELEGRAM_TOKEN = ""
+PATH_TO_HERE = os.path.abspath(os.path.dirname(__file__))
+PATH_TO_TOKEN_FILE = os.path.join(PATH_TO_HERE, "..", "..", "token_data.yaml")
 
-########################################
-# NOTE: BELOW IS ONLY NEEDED FOR TESTS #
-########################################
 
-#############
-# API Token #
-##################################################
-# Create a token at https://my.telegram.org/apps #
-# and fill in here                               #
-##################################################
-API_ID = ""
-API_HASH = ""
+def load_token_file_data():
+    with open(PATH_TO_TOKEN_FILE) as f:
+        data = load(f, Loader=Loader)
+    return data
 
-#################
-# Chat bot name #
-##########################################
-# Fill in the name you gave your chatbot #
-##########################################
-CHATBOT_NAME = ""
+
+token_data = load_token_file_data()
+FP_BASE_URL = token_data["FP_BASE_URL"]
+TELEGRAM_TOKEN = token_data["TELEGRAM_TOKEN"]
+
+# For running tests
+CHATBOT_NAME = token_data["CHATBOT_NAME"]
+API_ID = token_data["API_ID"]
+API_HASH = token_data["API_HASH"]
+TEST_BOT_TOKEN = token_data["TEST_BOT_TOKEN"]
 
 
 def _check_token():
+    names = ["FP Base URL", "Telegram token"]
+    values = [FP_BASE_URL, TELEGRAM_TOKEN]
+    _check_constants(names, values)
     assert len(TELEGRAM_TOKEN) > 0, "no telegram token"
 
 
 def _check_test_constants():
-    for (name, t) in zip(["API ID", "API Hash", "Chat bot name"], [API_ID, API_HASH, CHATBOT_NAME]):
-        assert len(t) > 0, f"no {name}"
+    names = ["API ID", "API Hash", "Chat bot name", "Test bot token"]
+    values = [API_ID, API_HASH, CHATBOT_NAME, TEST_BOT_TOKEN]
+    _check_constants(names, values)
+
+
+def _check_constants(names, values):
+    for (name, value) in zip(names, values):
+        assert len(value) > 0, f"no {name}"
 
 
 if __name__ == '__main__':

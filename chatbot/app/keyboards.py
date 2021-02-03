@@ -2,8 +2,6 @@ import emoji
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
 )
 
 from chatbot.app.patterns import Pattern
@@ -24,10 +22,12 @@ CATEGORIES = [
     "Others",
 ]
 
+
 class Button:
     RequestHelp = InlineKeyboardButton('Request Help', callback_data=Pattern.REQUEST_HELP)
     OfferHelp = InlineKeyboardButton('Offer Help', callback_data=Pattern.REQUEST_HELP)
     Done = InlineKeyboardButton('Done', callback_data=Pattern.DONE)
+    CreatePost = InlineKeyboardButton('Create Post', callback_data='create_post')
 
 
 # define all keyboards here.
@@ -66,7 +66,7 @@ def main_menu(is_user_signed_in: bool):
             InlineKeyboardButton('View My Profile', callback_data='view_my_profile'),
         ],
         [
-            InlineKeyboardButton('Create Post', callback_data='create_post'),
+            Button.CreatePost,
             InlineKeyboardButton('About FightPandemics', callback_data='about'),
         ],
     ]
@@ -108,7 +108,7 @@ def view_posts():
 
     grid.append([
         InlineKeyboardButton('< Prev', callback_data='display_selected_post_prev'),
-        InlineKeyboardButton('Create Post', callback_data='create_post'),
+        Button.CreatePost,
         InlineKeyboardButton('Next > ', callback_data='display_selected_post_next'),
     ])
     return InlineKeyboardMarkup(grid)
@@ -130,3 +130,7 @@ def no_location():
 
 def confirm_location():
     return InlineKeyboardMarkup([[InlineKeyboardButton('Confirm', callback_data='view_posts')]])
+
+
+def create_post():
+    return InlineKeyboardMarkup([[Button.CreatePost]])
