@@ -8,3 +8,4 @@ FightPandemics_Telegram_bot.egg-info/
 constants.py
 *.session
 todo.txt
+token_data.yaml
