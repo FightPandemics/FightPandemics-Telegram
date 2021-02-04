@@ -12,6 +12,13 @@ from telegram.ext import (
 )
 
 from chatbot import main
+from .conversation import (
+    Conversation,
+    UserAction,
+    BotReply,
+    Write,
+    Click,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -40,6 +47,23 @@ class MockBot:
         self.last_message: Optional[MockMessage] = None
         # TODO should this live here?
         self._chat_id = self._get_new_chat_id()
+
+    def assert_conversation(self, conversation: Conversation):
+        for action in conversation:
+            if isinstance(action, UserAction):
+                if isinstance(action.action, Write):
+                    self.write_as_user(action.action.text)
+                elif isinstance(action.action, Click):
+                    self.click_as_user(action.action.button)
+                else:
+                    raise TypeError(f"Unknown action: {action.action}")
+            elif isinstance(action, BotReply):
+                text = self.get_text_of_last_message()
+                buttons = self.get_buttons_of_last_message()
+                assert text == action.text, f"{text} != {action.text}"
+                assert buttons == action.buttons, f"{buttons} != {action.buttons}"
+            else:
+                raise TypeError(f"Unknown action: {action}")
 
     def write_as_user(self, message):
         self._dispatcher._handle_message(message)
@@ -127,10 +151,10 @@ class MockDispatcher:
         self._mock_handlers.append(mock_handler)
 
     def _handle_message(self, message):
-        return self._handle_user_action(UserAction(message=message))
+        return self._handle_user_action(_UserAction(message=message))
 
     def _handle_click(self, callback_data):
-        return self._handle_user_action(UserAction(callback_data=callback_data))
+        return self._handle_user_action(_UserAction(callback_data=callback_data))
 
     def _handle_user_action(self, user_action):
         for mock_handler in self._mock_handlers:
@@ -151,7 +175,7 @@ user_actions = [
     "message",
     "callback_data",
 ]
-UserAction = namedtuple(
+_UserAction = namedtuple(
     "UserAction",
     user_actions,
     defaults=[None] * len(user_actions),
@@ -258,7 +282,7 @@ def get_mock_handler(handler):
 
 class BaseMockHandler(abc.ABC):
     @abc.abstractmethod
-    def callback(self, user_action: UserAction) -> Optional[Callable]:
+    def callback(self, user_action: _UserAction) -> Optional[Callable]:
         pass
 
     def post_callback(self, callback_return):
@@ -271,7 +295,7 @@ class MockCommandHandler(BaseMockHandler):
         self._callback = handler.callback
         self._command = handler.command[0]
 
-    def callback(self, user_action: UserAction) -> Optional[Callable]:
+    def callback(self, user_action: _UserAction) -> Optional[Callable]:
         if not self._matches_command(user_action.message):
             return None
         return self._callback
@@ -289,7 +313,7 @@ class MockConverstationHandler(BaseMockHandler):
         self._current_state = None
         # TODO handle re-entry?
 
-    def callback(self, user_action: UserAction) -> Optional[Callable]:
+    def callback(self, user_action: _UserAction) -> Optional[Callable]:
         current_handlers = self._get_current_handlers()
         for handler in current_handlers:
             callback = handler.callback(user_action)
@@ -312,7 +336,7 @@ class MockCallbackQueryHandler(BaseMockHandler):
         self._callback = handler.callback
         self._pattern = handler.pattern
 
-    def callback(self, user_action: UserAction) -> Optional[Callable]:
+    def callback(self, user_action: _UserAction) -> Optional[Callable]:
         if not self._matches_button(user_action.callback_data):
             return None
         return self._callback
@@ -328,7 +352,7 @@ class MockMessageHandler(BaseMockHandler):
         self._callback = handler.callback
         self._filters = handler.filters
 
-    def callback(self, user_action: UserAction) -> Optional[Callable]:
+    def callback(self, user_action: _UserAction) -> Optional[Callable]:
         if not self._is_valid(user_action.message):
             return None
         return self._callback
