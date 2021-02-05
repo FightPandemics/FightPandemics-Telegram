@@ -2,6 +2,8 @@ import requests
 import json
 from chatbot.app.constants import FP_BASE_URL
 
+VALID_STATUS_CODE = 200
+
 
 def login_fp(email, password):
     payload = {
@@ -17,6 +19,7 @@ def login_fp(email, password):
     if not response_json.get('emailVerified'):
         return None, None
 
+    _check_status_code(response)
     return response_json['user']['id'], response_json['token'],
 
 
@@ -32,6 +35,8 @@ def create_fp_account(email, password):
 
     with requests.Session() as s:
         response = s.post(url, data=json.dumps(payload), headers=headers)
+
+    _check_status_code(response)
     return response.json()
 
 
@@ -98,5 +103,5 @@ def get_user_location(latitude, longitude):
 
 
 def _check_status_code(response):
-    if response.status_code != 200:
+    if response.status_code != VALID_STATUS_CODE:
         raise ConnectionError("Unable to connect to FightPandemics")

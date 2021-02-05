@@ -2,7 +2,7 @@ import json
 
 from telegram.ext import ConversationHandler, CallbackQueryHandler
 
-from chatbot.app import views, keyboards
+from chatbot.app import views, keyboards, patterns, handlers
 from chatbot.app import fp_api_manager as fpapi
 from chatbot.app.user_data import (
     CATEGORIES_KEY,
@@ -180,10 +180,12 @@ def _handle_view_my_posts(update, context, posts):
 def _show_posts_to_user(update, context, posts, header_message):
     formatted_posts = _format_posts(posts)
     reply_text = f"{header_message}\n\n{formatted_posts}"
-    update.effective_message.reply_text(
+    handlers.util.reply_to_callback_query(
+        update=update,
+        context=context,
         text=reply_text,
-        reply_markup=keyboards.view_posts(),
-        )
+        keyboard=keyboards.view_posts(),
+    )
 
 
 def _is_user_choice_post_id(user_choice):
@@ -269,7 +271,7 @@ def _get_header_message_user_posts(context):
     return f"Page {page} of your posts"
 
 
-ViewMyProfileQueryHandler = CallbackQueryHandler(view_my_profile, pattern='view_my_profile')
-ViewMyPostsQueryHandler = CallbackQueryHandler(view_my_posts, pattern='view_my_posts')
-DisplaySelectedPostsQueryHandler = CallbackQueryHandler(display_selected_post, pattern='display_selected_post')
-ViewPostsQueryHandler = CallbackQueryHandler(view_posts, pattern='view_posts')
+ViewMyProfileQueryHandler = CallbackQueryHandler(view_my_profile, pattern=patterns.VIEW_MY_PROFILE)
+ViewMyPostsQueryHandler = CallbackQueryHandler(view_my_posts, pattern=patterns.VIEW_MY_POSTS)
+DisplaySelectedPostsQueryHandler = CallbackQueryHandler(display_selected_post, pattern=patterns.DISPLAY_SELECTED_POST)
+ViewPostsQueryHandler = CallbackQueryHandler(view_posts, pattern=patterns.VIEW_POSTS)

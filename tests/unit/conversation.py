@@ -19,8 +19,8 @@ class UserAction:
 
 @dataclass
 class BotReply:
-    text: Optional[str]
-    buttons: Optional[List[List[str]]]
+    text: Optional[str] = None
+    buttons: Optional[List[List[str]]] = None
 
 
 Conversation = List[Union[UserAction, BotReply]]

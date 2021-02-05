@@ -7,7 +7,7 @@ from telegram.ext import (
     ConversationHandler,
 )
 
-from chatbot.app import handlers, keyboards
+from chatbot.app import handlers, keyboards, patterns
 from chatbot.app import fp_api_manager as fpapi
 
 
@@ -41,15 +41,23 @@ def login_conversation(pattern):
 
 def login(update, context):
     reply_text = "Please provide your username:"
-    update.effective_message.reply_text(text=reply_text)
+    handlers.util.reply_to_callback_query(
+        update=update,
+        context=context,
+        text=reply_text,
+    )
     return State.USERNAME_INPUT
 
 
 def username_choice(update, context):
-    text = update.message.text
-    context.user_data['username'] = text
-    reply_text = "Please enter password for username : {}".format(text)
-    update.effective_message.reply_text(reply_text)
+    username = update.message.text
+    context.user_data['username'] = username
+    reply_text = "Please enter password for username \"{}\":".format(username)
+    handlers.util.reply_to_callback_query(
+        update=update,
+        context=context,
+        text=reply_text,
+    )
     return State.PASSWORD_INPUT
 
 
@@ -61,15 +69,17 @@ def password_choice(update, context):
     if user_id:
         context.user_data["token"] = token
         context.user_data["user_id"] = user_id
-        text = 'Login Successful. What would you like to do?',
+        reply_text = 'Login Successful. What would you like to do?'
         is_user_signed_in = True
     else:
-        text = "Incorrect username, password combination. Please try to login again",
+        reply_text = "Incorrect username, password combination. Please try to login again"
         is_user_signed_in = False
 
-    update.effective_message.reply_text(
-        text=text,
-        reply_markup=keyboards.main_menu(is_user_signed_in),
+    handlers.util.reply_to_callback_query(
+        update=update,
+        context=context,
+        text=reply_text,
+        keyboard=keyboards.main_menu(is_user_signed_in),
     )
     return ConversationHandler.END
 
@@ -80,8 +90,14 @@ def signout(update, context):
     for key in keys:
         context.user_data.pop(key, None)
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="You have been signed out")
+    reply_text = "You have been signed out"
+    handlers.util.reply_to_callback_query(
+        update=update,
+        context=context,
+        text=reply_text,
+        keyboard=keyboards.main_menu(is_user_signed_in=False),
+    )
 
 
-LoginConvHandler = login_conversation(pattern='login')
-SignoutQueryHandler = CallbackQueryHandler(signout, pattern='signout')
+LoginConvHandler = login_conversation(pattern=patterns.LOGIN)
+SignoutQueryHandler = CallbackQueryHandler(signout, pattern=patterns.SIGNOUT)

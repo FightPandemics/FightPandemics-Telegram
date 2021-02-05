@@ -12,6 +12,7 @@ from telegram.ext import (
 )
 
 from chatbot import main
+from chatbot.app import fp_api_manager
 from .conversation import (
     Conversation,
     UserAction,
@@ -19,11 +20,6 @@ from .conversation import (
     Write,
     Click,
 )
-
-
-@pytest.fixture(autouse=True)
-def mock_check_telegram_token(monkeypatch):
-    monkeypatch.setattr(main, "check_telegram_token", lambda: None)
 
 
 @pytest.fixture()
@@ -35,6 +31,77 @@ def mock_bot(monkeypatch):
 
     main.main()
     return MockBot(updater=updater)
+
+
+@pytest.fixture()
+def mock_requests(monkeypatch):
+    mock_session = MockSession()
+    mock_requests = MockRequests(mock_session)
+    monkeypatch.setattr(fp_api_manager, "requests", mock_requests)
+    return mock_session
+
+
+class MockRequests:
+    def __init__(self, mock_session):
+        self._mock_session = mock_session
+
+    def Session(self):
+        return self._mock_session
+
+
+class MockSession:
+    _GET_QUERY_TYPE = "GET"
+    _POST_QUERY_TYPE = "GET"
+    def __init__(self):
+        self._upcoming_returns = {
+            self._GET_QUERY_TYPE: [],
+            self._POST_QUERY_TYPE: [],
+        }
+
+    def __call__(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+    def post(self, *args, **kwargs):
+        return self._get_return(self._POST_QUERY_TYPE)
+
+    def get(self, *args, **kwargs):
+        return self._get_return(self._GET_QUERY_TYPE)
+
+    def add_upcoming_post_return(self, response, status_code=0):
+        self._add_upcoming_return(self._POST_QUERY_TYPE, status_code, response)
+
+    def add_upcoming_get_return(self, response, status_code=0):
+        self._add_upcoming_return(self._GET_QUERY_TYPE, status_code, response)
+
+    def _get_return(self, query_type):
+        upcoming_returns = self._upcoming_returns[query_type]
+        if len(upcoming_returns) > 0:
+            return upcoming_returns.pop(0)
+        else:
+            raise RuntimeError("To use the mock session you need to define all the upcoming GET/POST returns.")
+
+    def _add_upcoming_return(self, query_type, status_code, response):
+        mock_response = MockResponse(response, status_code)
+        self._upcoming_returns[query_type].append(mock_response)
+
+
+class MockResponse:
+    def __init__(self, response, status_code):
+        self._response = response
+        self._status_code = status_code
+
+    def json(self):
+        return self._response
+
+    @property
+    def status_code(self):
+        return self._status_code
 
 
 class MockBot:
@@ -73,8 +140,9 @@ class MockBot:
         callback_data = self._callback_data_from_button(button_text)
         self._dispatcher._handle_click(callback_data)
 
-    def send_message(self, **kwargs):
-        self.last_message = MockMessage(self, **kwargs)
+    def set_user_data_entry(self, key, value):
+        user_data = self._get_user_data()
+        user_data[key] = value
 
     def get_text_of_last_message(self):
         if self.last_message is None:
@@ -86,6 +154,9 @@ class MockBot:
         if inline_keyboard is None:
             return None
         return [[entry['text'] for entry in row] for row in inline_keyboard]
+
+    def send_message(self, **kwargs):
+        self.last_message = MockMessage(self, **kwargs)
 
     def _callback_data_from_button(self, button_text):
         inline_keyboard = self._last_inline_keyboard()
@@ -111,6 +182,9 @@ class MockBot:
     def _get_new_chat_id(self):
         # TODO random for now
         return random.randint(0, 100)
+
+    def _get_user_data(self):
+        return self._dispatcher._context._user_data
 
 
 class MockUpdater:
@@ -210,6 +284,12 @@ class MockMessage:
 
     def __getitem__(self, key):
         return self._kwargs[key]
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError
 
     def get(self, key):
         return self._kwargs.get(key)
@@ -322,6 +402,9 @@ class MockConverstationHandler(BaseMockHandler):
         return None
 
     def post_callback(self, callback_return):
+        if callback_return == ConversationHandler.END:
+            self._current_state = None
+            return
         assert callback_return in self._states
         self._current_state = callback_return
 

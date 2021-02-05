@@ -5,17 +5,18 @@ from .conversation import (
 )
 
 
+from chatbot.app import keyboards, patterns
+
+
 def test_mainmenu(mock_bot):
+    buttons = keyboards.BASE_MAIN_MENU_BUTTONS
+    buttons.append([patterns.LOGIN])
+
     conversation = [
         UserAction(Write("/mainmenu")),
         BotReply(
             text="This is FightPandemics Chatbot main menu, What would you like to do?",
-            buttons=[
-                ['Request Help', 'Offer Help'],
-                ['View My Posts', 'View My Profile'],
-                ['Create Post', 'About FightPandemics'],
-                ['Login'],
-            ]
+            buttons=buttons,
         ),
     ]
 
