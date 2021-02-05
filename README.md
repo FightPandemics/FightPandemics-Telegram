@@ -49,12 +49,21 @@ We therefore simply mock the telegram objects, see `tests/unit/conftest.py`.
 
 To run the unit-tests simply do:
 ```bash
-make install
+make tests
 ```
 or without make
 ```bash
 python3 -m pytest tests/unit
 ```
+
+##### Coverage
+When running the unit-tests through make, it will also print the test coverage of the current tests, i.e. how much of the code is actually tested.
+To do this without make, run:
+```bash
+python3 -m pytest tests/unit --cov=chatbot --cov-report=term --cov-report=html
+```
+In both cases the coverage will be printed to the terminal and the folder `htmlcov` will be created.
+To see an interactive view of which lines are tested and which are not, simply open `htmlcov/index.html`, i.e. by `open htmlcov/index.html` or `xdg-open htmlcov/index.html`.
 
 #### End2end tests
 The end2end tests checks the full behavior of the chatbot using a real conversation over the network etc.

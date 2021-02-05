@@ -20,7 +20,7 @@ test-deps:
 	@python3 -m pip install -r test_requirements.txt
 
 tests:
-	@python3 -m pytest ${UNIT_TESTS}
+	@python3 -m pytest ${UNIT_TESTS} --cov=${SOURCE_DIR} --cov-report=html --cov-report=term
 
 tests-end2end: _check_constants _setup_test_client
 	@python3 -m pytest ${END2END_TESTS}
