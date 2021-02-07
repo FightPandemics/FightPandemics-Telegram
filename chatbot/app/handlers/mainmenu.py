@@ -14,23 +14,4 @@ def main_menu(update, context):
     )
 
 
-# TODO what is the purpose of start when there is also mainmenu?
-def start(update, context):
-    """Send a message to the user when the command /start is issued."""
-
-    start_message = (
-        'Hi! Welcome!'
-        'We are FightPandemics.'
-        'A place to offer and request help.'
-        'Pandemics will continue to happen.'
-        'We help communities prepare and respond.'
-        'What would you like to do?'
-    )
-    update.message.reply_text(
-        text=start_message,
-        reply_markup=keyboards.request_or_offer(),
-    )
-
-
 MainMenuCmdHandler = CommandHandler("mainmenu", main_menu)
-StartCmdHandler = CommandHandler("start", main_menu)

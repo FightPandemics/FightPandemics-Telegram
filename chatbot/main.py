@@ -33,7 +33,6 @@ def main(log_level="INFO"):
 
     # Command handlers
     dp.add_handler(handlers.MainMenuCmdHandler)
-    dp.add_handler(handlers.StartCmdHandler)
     dp.add_handler(handlers.HelpCmdHandler)
 
     # Conversation handlers

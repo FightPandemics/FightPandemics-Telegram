@@ -1,6 +1,5 @@
 from .mainmenu import (
     MainMenuCmdHandler,
-    StartCmdHandler,
 )
 from .info import (
     HelpCmdHandler,

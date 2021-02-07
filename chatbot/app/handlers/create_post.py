@@ -41,7 +41,7 @@ def create_post_conversation(pattern):
                 handlers.ViewPostsQueryHandler,
             ]
         },
-        fallbacks=[handlers.StartCmdHandler],
+        fallbacks=[handlers.MainMenuCmdHandler],
         name="help_handler",
         allow_reentry=True
     )
