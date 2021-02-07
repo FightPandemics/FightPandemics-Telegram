@@ -1,0 +1,31 @@
+# Base URL
+FP_BASE_URL: "http://127.0.0.1:8000/api/"
+
+#################
+# Access tokens #
+########################################
+# You get this when setting up the bot #
+########################################
+TELEGRAM_TOKEN: ""
+
+
+########################################
+# NOTE: BELOW IS ONLY NEEDED FOR TESTS #
+########################################
+
+#################
+# Chat bot name #
+##########################################
+# Fill in the name you gave your chatbot #
+##########################################
+CHATBOT_NAME: ""
+
+#############
+# API Token #
+##################################################
+# Create a token at https://my.telegram.org/apps #
+# and fill in here                               #
+##################################################
+API_ID: ""
+API_HASH: ""
+TEST_BOT_TOKEN: ""

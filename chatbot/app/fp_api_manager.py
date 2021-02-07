@@ -1,6 +1,6 @@
 import requests
 import json
-from chatbot.app import FP_BASE_URL
+from chatbot.app.constants import FP_BASE_URL
 
 
 def login_fp(email, password):
@@ -11,13 +11,13 @@ def login_fp(email, password):
     url = FP_BASE_URL + "auth/login"
     headers = {'content-type': 'application/json'}
 
-    s = requests.Session()
-    response = s.post(url, data=json.dumps(payload), headers=headers)
+    with requests.Session() as s:
+        response = s.post(url, data=json.dumps(payload), headers=headers)
     response_json = response.json()
-    if "emailVerified" in response_json and response_json['emailVerified']:
-        return response_json['user']['id'], response_json['token'],
+    if not response_json.get('emailVerified'):
+        return None, None
 
-    return None, None
+    return response_json['user']['id'], response_json['token'],
 
 
 def create_fp_account(email, password):
@@ -31,8 +31,8 @@ def create_fp_account(email, password):
     headers = {'content-type': 'application/json'}
 
     with requests.Session() as s:
-        p = s.post(url, data=json.dumps(payload), headers=headers)
-        print(p.content)
+        response = s.post(url, data=json.dumps(payload), headers=headers)
+    return response.json()
 
 
 def post_comment(token, user_id, post_id, content):
@@ -40,49 +40,47 @@ def post_comment(token, user_id, post_id, content):
         "actorId": user_id,
         "content": content
     }
-    url = FP_BASE_URL + "posts/{}/comments".format(post_id)
+    url = FP_BASE_URL + f"posts/{post_id}/comments"
     headers = {'content-type': 'application/json'}
 
-    s = requests.Session()
-    s.headers['Authorization'] = 'Bearer {}'.format(token)
-    req = s.post(url, data=json.dumps(payload), headers=headers)
+    with requests.Session() as s:
+        s.headers['Authorization'] = f'Bearer {token}'
+        response = s.post(url, data=json.dumps(payload), headers=headers)
 
-    if req.status_code == 200:
-        print(req.content)
-        return req.json()
-    else:
-        return "Unable to connect to FightPandemics"
+    _check_status_code(response)
+    return response.json()
 
 
 def get_posts(payload):
     url = FP_BASE_URL + "posts"
     headers = {'content-type': 'application/json'}
-    s = requests.Session()
-    response = s.get(url, params=payload, headers=headers)
-    if response.status_code == 200:
-        return response.json()
+
+    with requests.Session() as s:
+        response = s.get(url, params=payload, headers=headers)
+
+    _check_status_code(response)
+    return response.json()
 
 
 def get_post(post_id):
     url = FP_BASE_URL + "posts/" + post_id
-    s = requests.Session()
-    req = s.get(url)
-    if req.status_code == 200:
-        return req.json()
-    else:
-        return "Unable to connect to FightPandemics"
+
+    with requests.Session() as s:
+        response = s.get(url)
+
+    _check_status_code(response)
+    return response.json()
 
 
 def get_current_user_profile(token):
     url = FP_BASE_URL + "users/current"
-    s = requests.Session()
-    s.headers['Authorization'] = 'Bearer {}'.format(token)
-    req = s.get(url)
 
-    if req.status_code == 200:
-        return req.json()
-    else:
-        return "Unable to connect to FightPandemics"
+    with requests.Session() as s:
+        s.headers['Authorization'] = 'Bearer {}'.format(token)
+        response = s.get(url)
+
+    _check_status_code(response)
+    return response.json()
 
 
 def get_user_location(latitude, longitude):
@@ -91,9 +89,14 @@ def get_user_location(latitude, longitude):
         'lng': longitude
     }
     url = FP_BASE_URL + "geo/location-reverse-geocode"
-    s = requests.Session()
-    response = s.get(url, params=payload)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return "Failed to fetch location"
+
+    with requests.Session() as s:
+        response = s.get(url, params=payload)
+
+    _check_status_code(response)
+    return response.json()
+
+
+def _check_status_code(response):
+    if response.status_code != 200:
+        raise ConnectionError("Unable to connect to FightPandemics")

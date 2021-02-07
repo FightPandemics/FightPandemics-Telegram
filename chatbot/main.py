@@ -1,41 +1,48 @@
 import logging
-from chatbot.app.handlers import *
-from chatbot.app.constants import TELEGRAM_TOKEN
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from argparse import ArgumentParser
+
+from telegram.ext import Updater
+
+from chatbot.app import handlers, constants
+
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
+def setup_logging(log_level):
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=log_level.upper(),
+    )
 
 
-def main():
+def main(log_level="INFO"):
     """Start the bot"""
+    setup_logging(log_level=log_level)
+
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
-    if len(TELEGRAM_TOKEN) == 0:
+    if len(constants.TELEGRAM_TOKEN) == 0:
         raise ValueError("Please provide a valid telegram token")
 
-    updater = Updater(TELEGRAM_TOKEN, use_context=True)
+    updater = Updater(constants.TELEGRAM_TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Add all handlers here
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help_command))
-    dp.add_handler(CommandHandler("mainmenu", main_menu))
+    # Command handlers
+    dp.add_handler(handlers.MainMenuCmdHandler)
+    dp.add_handler(handlers.StartCmdHandler)
+    dp.add_handler(handlers.HelpCmdHandler)
 
-    dp.add_handler(login_handler())
-    dp.add_handler(offer_help_conv_handler())
-    dp.add_handler(request_help_conv_handler())
+    # Conversation handlers
+    dp.add_handler(handlers.LoginConvHandler)
+    dp.add_handler(handlers.CreatePostConvHandler)
 
-    # we’ll use the dispatcher to add commands.
-    dp.add_handler(CallbackQueryHandler(about, pattern='about'))
-    dp.add_handler(CallbackQueryHandler(signout, pattern='signout'))
-    dp.add_handler(CallbackQueryHandler(view_my_profile, pattern='view_my_profile'))
-    dp.add_handler(CallbackQueryHandler(view_my_posts, pattern='view_my_posts'))
-    dp.add_handler(CallbackQueryHandler(display_selected_post, pattern='display_selected_post'))
+    # Callback query handlers
+    dp.add_handler(handlers.AboutQueryHandler)
+    dp.add_handler(handlers.SignoutQueryHandler)
+    dp.add_handler(handlers.ViewMyProfileQueryHandler)
+    dp.add_handler(handlers.ViewMyPostsQueryHandler)
+    dp.add_handler(handlers.DisplaySelectedPostsQueryHandler)
 
     # To start polling Telegram for any chat updates on Telegram
     updater.start_polling()
@@ -46,5 +53,20 @@ def main():
     updater.idle()
 
 
+def parse_args():
+    parser = ArgumentParser()
+    log_levels = ["debug", "info", "warning", "error", "critical"]
+    parser.add_argument(
+        '--log-level',
+        type=str,
+        choices=log_levels,
+        default="info",
+        required=False,
+        help="logging level",
+    )
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(log_level=args.log_level)
