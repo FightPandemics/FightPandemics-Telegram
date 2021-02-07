@@ -14,15 +14,18 @@ def setup_logging(log_level):
     )
 
 
+def check_telegram_token():
+    if len(constants.TELEGRAM_TOKEN) == 0:
+        raise ValueError("Please provide a valid telegram token")
+
+
 def main(log_level="INFO"):
     """Start the bot"""
     setup_logging(log_level=log_level)
 
+    check_telegram_token()
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
-    if len(constants.TELEGRAM_TOKEN) == 0:
-        raise ValueError("Please provide a valid telegram token")
-
     updater = Updater(constants.TELEGRAM_TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers

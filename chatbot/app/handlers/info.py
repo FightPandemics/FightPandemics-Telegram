@@ -1,5 +1,7 @@
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
+from chatbot.app import patterns
+
 
 def help(update, context):
     """Send a message when the command /help is issued."""
@@ -20,4 +22,4 @@ def about(update, context):
 
 
 HelpCmdHandler = CommandHandler('help', help)
-AboutQueryHandler = CallbackQueryHandler(about, pattern='about')
+AboutQueryHandler = CallbackQueryHandler(about, pattern=patterns.ABOUT_FIGHTPANDEMICS)

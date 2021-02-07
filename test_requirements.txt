@@ -1,5 +1,6 @@
 pytest
 pytest-bdd
+pytest-cov
 pyrogram
 tgcrypto
 flake8

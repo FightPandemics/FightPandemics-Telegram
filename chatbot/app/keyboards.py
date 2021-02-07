@@ -1,83 +1,68 @@
+from typing import List
+
 import emoji
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
 
-from chatbot.app.patterns import Pattern
+from chatbot.app import patterns
 
 
-CATEGORIES = [
-    "Medical Supplies",
-    "Groceries/Food",
-    "Business",
-    "Education",
-    "Legal",
-    "Wellbeing/Mental",
-    "Entertainment",
-    "Information",
-    "Funding",
-    "R&D",
-    "Tech",
-    "Others",
+CATEGORY_BUTTONS = [
+    ["Medical Supplies", "Groceries/Food", "Business"],
+    ["Education", "Legal", "Wellbeing/Mental"],
+    ["Entertainment", "Information", "Funding"],
+    ["R&D", "Tech", "Others"],
+]
+# Flatten grid
+CATEGORIES = [b for row in CATEGORY_BUTTONS for b in row]
+
+BASE_MAIN_MENU_BUTTONS = [
+    [patterns.REQUEST_HELP, patterns.OFFER_HELP],
+    [patterns.VIEW_MY_POSTS, patterns.VIEW_MY_PROFILE],
+    [patterns.CREATE_POST, patterns.ABOUT_FIGHTPANDEMICS],
 ]
 
 
-class Button:
-    RequestHelp = InlineKeyboardButton('Request Help', callback_data=Pattern.REQUEST_HELP)
-    OfferHelp = InlineKeyboardButton('Offer Help', callback_data=Pattern.REQUEST_HELP)
-    Done = InlineKeyboardButton('Done', callback_data=Pattern.DONE)
-    CreatePost = InlineKeyboardButton('Create Post', callback_data='create_post')
+def _construct_inline_button(button_text: str) -> InlineKeyboardButton:
+    return InlineKeyboardButton(
+        text=button_text,
+        callback_data=button_text,
+    )
+
+
+def _construct_inline_keyboard(buttons: List[List[str]]) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([
+        [_construct_inline_button(button_text) for button_text in row]
+        for row in buttons
+    ])
 
 
 # define all keyboards here.
 def request_or_offer():
     """keyboard to choose to request or offer help"""
-    return InlineKeyboardMarkup([[Button.RequestHelp, Button.OfferHelp]])
+    return _construct_inline_keyboard([[patterns.REQUEST_HELP, patterns.OFFER_HELP]])
 
 
 def help_categories():
     """keyboard for choosing help categories"""
-    buttons_per_row = 3
-    grid = []
-    row = []
-    for i, category in enumerate(CATEGORIES):
-        row.append(InlineKeyboardButton(
-            category,
-            callback_data=category,
-        ))
-        if (i + 1) % buttons_per_row == 0:
-            grid.append(row)
-            row = []
-    if len(row) > 0:
-        grid.append(row)
-    grid.append([Button.Done])
-    return InlineKeyboardMarkup(grid)
+    buttons = CATEGORY_BUTTONS
+    buttons.append([patterns.DONE])
+    return _construct_inline_keyboard(buttons)
 
 
 def main_menu(is_user_signed_in: bool):
-    buttons = [
-        [
-            Button.RequestHelp,
-            Button.OfferHelp,
-        ],
-        [
-            InlineKeyboardButton('View My Posts', callback_data='view_my_posts'),
-            InlineKeyboardButton('View My Profile', callback_data='view_my_profile'),
-        ],
-        [
-            Button.CreatePost,
-            InlineKeyboardButton('About FightPandemics', callback_data='about'),
-        ],
-    ]
+    return _construct_inline_keyboard(_main_menu_buttons(is_user_signed_in))
 
+
+def _main_menu_buttons(is_user_signed_in: bool) -> List[List[str]]:
+    buttons = BASE_MAIN_MENU_BUTTONS
     if is_user_signed_in:
-        button_text = 'Signout'
+        buttons.append([patterns.SIGNOUT])
     else:
-        button_text = 'Login'
-    callback_data = button_text.lower()
-    buttons.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-    return InlineKeyboardMarkup(buttons)
+        buttons.append([patterns.LOGIN])
+    return buttons
 
 
 def checklist(keyboard, selected_buttons):
@@ -108,17 +93,15 @@ def view_posts():
 
     grid.append([
         InlineKeyboardButton('< Prev', callback_data='display_selected_post_prev'),
-        Button.CreatePost,
+        _construct_inline_button(patterns.CREATE_POST),
         InlineKeyboardButton('Next > ', callback_data='display_selected_post_next'),
     ])
     return InlineKeyboardMarkup(grid)
 
 
 def display_selected_post():
-    return InlineKeyboardMarkup([[
-        InlineKeyboardButton('See Comments', callback_data='see_comments'),
-        InlineKeyboardButton('View Author Profile', callback_data='view_author_profile'),
-        InlineKeyboardButton('Post Comment', callback_data='post_comment')
+    _construct_inline_keyboard([[
+        patterns.SEE_COMMENTS, patterns.VIEW_AUTHOR_PROFILE, patterns.POST_COMMENT
     ]])
 
 
@@ -133,4 +116,4 @@ def confirm_location():
 
 
 def create_post():
-    return InlineKeyboardMarkup([[Button.CreatePost]])
+    return _construct_inline_keyboard([[patterns.CREATE_POST]])

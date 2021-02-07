@@ -1,6 +1,9 @@
-TEST_DIR         = tests
 SOURCE_DIR       = chatbot
+MAIN             = ${SOURCE_DIR}/main.py
 CONSTANTS_FILE   = ${SOURCE_DIR}/app/constants.py
+TEST_DIR         = tests
+UNIT_TESTS       = ${TEST_DIR}/unit
+END2END_TESTS    = ${TEST_DIR}/end2end
 CLIENT_TEST_FILE = ${TEST_DIR}/end2end/fixtures/client.py
 
 help:
@@ -9,21 +12,27 @@ help:
 	@echo "tests      Run tests"
 	@echo "lint       Run linter"
 
-install:
+install: test-deps
 	@python3 -m pip install -r requirements.txt
 	@python3 -m pip install -e .
 
 test-deps:
 	@python3 -m pip install -r test_requirements.txt
 
-tests: _check_constants test-deps _setup_test_client
-	@pytest ${TEST_DIR}
+tests:
+	@python3 -m pytest ${UNIT_TESTS} --cov=${SOURCE_DIR} --cov-report=html --cov-report=term
 
-_setup_test_client:
-	@python3 ${CLIENT_TEST_FILE}
+tests-end2end: _check_constants _setup_test_client
+	@python3 -m pytest ${END2END_TESTS}
+
+lint:
+	@python3 -m flake8 ${SOURCE_DIR} ${TEST_DIR}
 
 _check_constants:
 	@python3 ${CONSTANTS_FILE} --check-test-constants
 
-lint:
-	@python3 -m flake8 ${SOURCE_DIR} ${TEST_DIR}
+_setup_test_client:
+	@python3 ${CLIENT_TEST_FILE}
+
+
+.PHONY: help install test-deps tests tests-end2end _run_bot _check_constants _setup_test_client lint
