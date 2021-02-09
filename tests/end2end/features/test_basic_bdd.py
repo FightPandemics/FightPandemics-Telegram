@@ -34,7 +34,9 @@ def assert_buttons(client, exp_buttons):
     button_rows = client.get_current_button_labels()
     print(exp_buttons)
     print(button_rows)
+    assert len(button_rows) == len(exp_rows)
     for row, exp_row in zip(button_rows, exp_rows):
+        assert len(row) == len(exp_row)
         for button, exp_button in zip(row, exp_row):
             assert button == exp_button
 

@@ -9,7 +9,7 @@ from telegram.ext import (
 
 from chatbot.app import handlers, keyboards
 from chatbot.app.handlers import util
-from chatbot.app.patterns import Pattern
+from chatbot.app import patterns
 from chatbot.app.user_data import CATEGORIES_KEY
 
 
@@ -30,7 +30,7 @@ def create_post_conversation(pattern):
                 CallbackQueryHandler(handle_type)
             ],
             State.CATEGORIES: [
-                CallbackQueryHandler(handle_categories_done, pattern=Pattern.DONE),
+                CallbackQueryHandler(handle_categories_done, pattern=patterns.DONE),
                 CallbackQueryHandler(handle_pick_category),
             ],
             State.LOCATION: [
@@ -41,7 +41,7 @@ def create_post_conversation(pattern):
                 handlers.ViewPostsQueryHandler,
             ]
         },
-        fallbacks=[handlers.StartCmdHandler],
+        fallbacks=[handlers.MainMenuCmdHandler],
         name="help_handler",
         allow_reentry=True
     )
@@ -61,7 +61,7 @@ def create_post(update, context):
 def handle_type(update, context):
     """Handle uses chooses to request or offer help"""
     pattern = update.callback_query.data
-    objective = "request" if pattern == Pattern.OFFER_HELP else "offer"
+    objective = "request" if pattern == patterns.OFFER_HELP else "offer"
     context.user_data['objective'] = objective
     util.reply_to_callback_query(
         update=update,
@@ -135,4 +135,4 @@ def handle_no_location(update, context):
     return State.SHOWPOST
 
 
-CreatePostConvHandler = create_post_conversation(pattern=Pattern.CREATE_POST)
+CreatePostConvHandler = create_post_conversation(pattern=patterns.CREATE_POST)
