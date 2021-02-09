@@ -47,7 +47,7 @@ def request_or_offer():
 
 def help_categories():
     """keyboard for choosing help categories"""
-    buttons = CATEGORY_BUTTONS
+    buttons = CATEGORY_BUTTONS[:]
     buttons.append([patterns.DONE])
     return _construct_inline_keyboard(buttons)
 
@@ -57,7 +57,7 @@ def main_menu(is_user_signed_in: bool):
 
 
 def _main_menu_buttons(is_user_signed_in: bool) -> List[List[str]]:
-    buttons = BASE_MAIN_MENU_BUTTONS
+    buttons = BASE_MAIN_MENU_BUTTONS[:]
     if is_user_signed_in:
         buttons.append([patterns.SIGNOUT])
     else:
