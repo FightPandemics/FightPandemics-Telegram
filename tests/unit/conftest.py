@@ -50,8 +50,10 @@ class MockRequests:
 
 
 class MockSession:
+
     _GET_QUERY_TYPE = "GET"
     _POST_QUERY_TYPE = "GET"
+
     def __init__(self):
         self._upcoming_returns = {
             self._GET_QUERY_TYPE: [],

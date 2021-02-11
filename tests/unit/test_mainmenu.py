@@ -9,7 +9,7 @@ from chatbot.app import keyboards, patterns
 
 
 def test_mainmenu(mock_bot):
-    buttons = keyboards.BASE_MAIN_MENU_BUTTONS
+    buttons = keyboards.BASE_MAIN_MENU_BUTTONS[:]
     buttons.append([patterns.LOGIN])
 
     conversation = [
