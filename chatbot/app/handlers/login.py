@@ -53,7 +53,7 @@ def username_choice(update, context):
     username = update.message.text
     context.user_data['username'] = username
     reply_text = "Please enter password for username \"{}\":".format(username)
-    handlers.util.reply_to_callback_query(
+    handlers.util.reply_to_message(
         update=update,
         context=context,
         text=reply_text,
@@ -64,18 +64,23 @@ def username_choice(update, context):
 def password_choice(update, context):
     username = context.user_data['username']
     password = update.message.text
-    user_id, token = fpapi.login_fp(email=username, password=password)
+    response = fpapi.login_fp(email=username, password=password)
 
-    if user_id:
+    if isinstance(response, fpapi.Error):
+        is_user_signed_in = False
+        if response == fpapi.Error.INVALID_LOGIN:
+            reply_text = "Incorrect username, password combination. Please try to login again"
+        else:
+            reply_text = "Something went wrong, could not connect to FightPandemics"
+    else:
+        user_id = response['user']['id']
+        token = response['token']
         context.user_data["token"] = token
         context.user_data["user_id"] = user_id
         reply_text = 'Login Successful. What would you like to do?'
         is_user_signed_in = True
-    else:
-        reply_text = "Incorrect username, password combination. Please try to login again"
-        is_user_signed_in = False
 
-    handlers.util.reply_to_callback_query(
+    handlers.util.reply_to_message(
         update=update,
         context=context,
         text=reply_text,

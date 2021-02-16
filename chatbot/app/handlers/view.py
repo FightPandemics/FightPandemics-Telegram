@@ -21,8 +21,10 @@ def view_my_profile(update, context):
         update.effective_message.reply_text("Please login to view your profile")
         return
 
-    user_profile_json = fpapi.get_current_user_profile(token=token)
-    user_info_view = views.UserProfile(user_profile_json).display()
+    response = fpapi.get_current_user_profile(token=token)
+    if isinstance(response, fpapi.Error):  # TODO handle error better
+        raise ConnectionError("Could not get user profile")
+    user_info_view = views.UserProfile(response).display()
     update.effective_message.reply_text(text=user_info_view)
 
 
@@ -88,7 +90,7 @@ def _get_posts(context, payload):
     # keep a copy of post_payload in user_data for future calls - TODO is it used?
     context.user_data['post_payload'] = payload
     posts = fpapi.get_posts(payload)
-    if posts is None:
+    if isinstance(posts, fpapi.Error):  # TODO handle error better
         raise ConnectionError("Could not get posts")
     return posts
 
@@ -252,6 +254,8 @@ def _get_real_post_id(context, user_choice):
 
 def _show_user_single_post(update, post_id):
     post = fpapi.get_post(post_id)
+    if isinstance(post, fpapi.Error):  # TODO handle error better
+        raise ConnectionError("Could not get post")
     reply_text = views.Post(post_json=post).display()
     update.effective_message.reply_text(
         text=reply_text,

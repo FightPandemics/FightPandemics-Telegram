@@ -9,6 +9,12 @@ from .conversation import (
     Write,
     Click,
 )
+from .request_calls import (
+    PostCall,
+    ANY,
+)
+
+LOGIN_URL = 'http://127.0.0.1:8000/api/auth/login'
 
 
 def test_correct_login(mock_bot, mock_requests):
@@ -41,6 +47,13 @@ def test_correct_login(mock_bot, mock_requests):
     ]
 
     mock_bot.assert_conversation(conversation)
+    mock_requests.assert_calls([
+        PostCall(
+            LOGIN_URL,
+            data='{"email": "%s", "password": "%s"}' % (username, password),
+            headers=ANY,
+        ),
+    ])
 
 
 def test_incorrect_login(mock_bot, mock_requests):
@@ -62,3 +75,10 @@ def test_incorrect_login(mock_bot, mock_requests):
     ]
 
     mock_bot.assert_conversation(conversation)
+    mock_requests.assert_calls([
+        PostCall(
+            LOGIN_URL,
+            data='{"email": "%s", "password": "%s"}' % (username, password),
+            headers=ANY,
+        ),
+    ])

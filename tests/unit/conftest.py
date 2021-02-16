@@ -1,5 +1,6 @@
 import abc
 import random
+from requests import exceptions
 from collections import namedtuple
 from typing import Optional, Callable
 
@@ -20,6 +21,7 @@ from .conversation import (
     Write,
     Click,
 )
+from .request_calls import GetCall, PostCall
 
 
 @pytest.fixture()
@@ -48,6 +50,10 @@ class MockRequests:
     def Session(self):
         return self._mock_session
 
+    @property
+    def exceptions(self):
+        return exceptions
+
 
 class MockSession:
 
@@ -59,6 +65,7 @@ class MockSession:
             self._GET_QUERY_TYPE: [],
             self._POST_QUERY_TYPE: [],
         }
+        self._handled_calls = []
 
     def __call__(self):
         return self
@@ -70,9 +77,11 @@ class MockSession:
         pass
 
     def post(self, *args, **kwargs):
+        self._handled_calls.append(PostCall(*args, **kwargs))
         return self._get_return(self._POST_QUERY_TYPE)
 
     def get(self, *args, **kwargs):
+        self._handled_calls.append(GetCall(*args, **kwargs))
         return self._get_return(self._GET_QUERY_TYPE)
 
     def add_upcoming_post_return(self, response, status_code=0):
@@ -91,6 +100,9 @@ class MockSession:
     def _add_upcoming_return(self, query_type, status_code, response):
         mock_response = MockResponse(response, status_code)
         self._upcoming_returns[query_type].append(mock_response)
+
+    def assert_calls(self, calls):
+        assert calls == self._handled_calls
 
 
 class MockResponse:
