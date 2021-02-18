@@ -1,3 +1,4 @@
+import logging
 from enum import Enum, auto
 
 from telegram.ext import (
@@ -7,7 +8,7 @@ from telegram.ext import (
     ConversationHandler,
 )
 
-from chatbot.app import handlers, keyboards, patterns
+from chatbot.app import handlers, keyboards, patterns, user_data
 from chatbot.app import fp_api_manager as fpapi
 
 
@@ -41,7 +42,7 @@ def login_conversation(pattern):
 
 def login(update, context):
     reply_text = "Please provide your username:"
-    handlers.util.reply_to_callback_query(
+    handlers.util.reply(
         update=update,
         context=context,
         text=reply_text,
@@ -51,9 +52,9 @@ def login(update, context):
 
 def username_choice(update, context):
     username = update.message.text
-    context.user_data['username'] = username
+    context.user_data[user_data.USERNAME] = username
     reply_text = "Please enter password for username \"{}\":".format(username)
-    handlers.util.reply_to_message(
+    handlers.util.reply(
         update=update,
         context=context,
         text=reply_text,
@@ -62,7 +63,7 @@ def username_choice(update, context):
 
 
 def password_choice(update, context):
-    username = context.user_data['username']
+    username = context.user_data[user_data.USERNAME]
     password = update.message.text
     response = fpapi.login_fp(email=username, password=password)
 
@@ -72,15 +73,16 @@ def password_choice(update, context):
             reply_text = "Incorrect username, password combination. Please try to login again"
         else:
             reply_text = "Something went wrong, could not connect to FightPandemics"
+        logging.warning(f"Unable to login, got the error {response}. Showing user {reply_text}")
     else:
         user_id = response['user']['id']
         token = response['token']
-        context.user_data["token"] = token
-        context.user_data["user_id"] = user_id
+        context.user_data[user_data.TOKEN] = token
+        context.user_data[user_data.USER_ID] = user_id
         reply_text = 'Login Successful. What would you like to do?'
         is_user_signed_in = True
 
-    handlers.util.reply_to_message(
+    handlers.util.reply(
         update=update,
         context=context,
         text=reply_text,
@@ -91,12 +93,11 @@ def password_choice(update, context):
 
 def signout(update, context):
     """ Destroy Session"""
-    keys = ['user_id', 'token', 'types', 'page_id', 'post_id']
-    for key in keys:
+    for key in user_data.ALL_INFO:
         context.user_data.pop(key, None)
 
     reply_text = "You have been signed out"
-    handlers.util.reply_to_callback_query(
+    handlers.util.reply(
         update=update,
         context=context,
         text=reply_text,

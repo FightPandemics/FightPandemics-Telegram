@@ -28,8 +28,10 @@ class AbstractPost(abc.ABC):
 
     @staticmethod
     def _extract_location(location_data):
-        # TODO should the length of this list really depend on what's in the json?
+        if location_data is None:
+            location_data = {}
         location = []
+        # TODO should the length of this list really depend on what's in the json?
         for key in ['city', 'state', 'country']:
             entry = location_data.get(key)
             if entry is not None:

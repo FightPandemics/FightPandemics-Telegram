@@ -353,6 +353,10 @@ class MockCallbackQuery:
     def answer(self):
         self._bot.last_click_answered = True
 
+    def edit_message_reply_markup(self, reply_markup):
+        # TODO not implemented yet
+        pass
+
     @property
     def message(self):
         return self._message
@@ -441,6 +445,8 @@ class MockCallbackQueryHandler(BaseMockHandler):
     def _matches_button(self, callback_data):
         if self._pattern is None:
             return True
+        if callback_data is None:
+            return False
         return bool(self._pattern.match(callback_data))
 
 

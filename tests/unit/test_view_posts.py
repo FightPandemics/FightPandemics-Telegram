@@ -1,7 +1,7 @@
 import pytest
 
 from chatbot.app import keyboards
-from chatbot.app.fp_api_manager import VALID_STATUS_CODE
+from chatbot.app.fp_api_manager import VALID_STATUS_CODES
 from .conversation import (
     UserAction,
     BotReply,
@@ -59,7 +59,7 @@ def test_view_my_posts(mock_bot, mock_requests, num_posts):
 
     mock_requests.add_upcoming_post_return(
         response=[TEST_POST_DATA] * num_posts,
-        status_code=VALID_STATUS_CODE
+        status_code=VALID_STATUS_CODES[0],
     )
 
     conversation = [

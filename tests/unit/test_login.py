@@ -1,7 +1,7 @@
 import random
 
 from chatbot.app import keyboards
-from chatbot.app.fp_api_manager import VALID_STATUS_CODE
+from chatbot.app.fp_api_manager import VALID_STATUS_CODES
 
 from .conversation import (
     UserAction,
@@ -27,7 +27,7 @@ def test_correct_login(mock_bot, mock_requests):
             'user': {'id': user_id},
             'token': token,
         },
-        status_code=VALID_STATUS_CODE,
+        status_code=VALID_STATUS_CODES[0],
     )
 
     # Login conversation
@@ -58,7 +58,7 @@ def test_correct_login(mock_bot, mock_requests):
 
 def test_incorrect_login(mock_bot, mock_requests):
     # Response with no entries implying incorrect login
-    mock_requests.add_upcoming_post_return(response={}, status_code=VALID_STATUS_CODE)
+    mock_requests.add_upcoming_post_return(response={}, status_code=VALID_STATUS_CODES[0])
 
     username = "Test Name"
     password = "test_password"

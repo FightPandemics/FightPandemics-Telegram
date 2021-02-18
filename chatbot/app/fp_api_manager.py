@@ -3,7 +3,7 @@ import json
 from enum import Enum, auto
 from chatbot.app.constants import FP_BASE_URL
 
-VALID_STATUS_CODE = 200
+VALID_STATUS_CODES = [200]
 
 
 class Error(Enum):
@@ -95,8 +95,8 @@ class StatusCodeError(ConnectionError):
 
 
 def _check_status_code(response):
-    if response.status_code != VALID_STATUS_CODE:
-        raise StatusCodeError("Unable to connect to FightPandemics")
+    if response.status_code not in VALID_STATUS_CODES:
+        raise StatusCodeError(f"Unable to connect to FightPandemics ({response})")
 
 
 def _try_post(session, *args, **kwargs):

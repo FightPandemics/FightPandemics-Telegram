@@ -1,3 +1,4 @@
+import logging
 from enum import Enum, auto
 
 from telegram.ext import (
@@ -7,132 +8,282 @@ from telegram.ext import (
     ConversationHandler,
 )
 
-from chatbot.app import handlers, keyboards
+from chatbot.app import handlers, keyboards, patterns, user_data, views
 from chatbot.app.handlers import util
-from chatbot.app import patterns
-from chatbot.app.user_data import CATEGORIES_KEY
+from .post_utils import (
+    get_show_categories_callback,
+    get_handle_pick_category_callback,
+    get_handle_categories_done_callback,
+    get_confirm_location_callback,
+    get_no_location_callback,
+    ask_user_to_sign_in,
+)
 
 
 class State(Enum):
-    TYPE = auto()
-    CATEGORIES = auto()
+    TITLE = auto()
+    DESCRIPTION = auto()
+    ASK_CATEGORIES = auto()
+    CHOOSE_CATEGORIES = auto()
     LOCATION = auto()
-    SHOWPOST = auto()
+    VISIBILITY = auto()
+    DURATION = auto()
+    PREVIEW = auto()
+    CONFIRM_PREVIEW = auto()
+    SUBMIT_POST = auto()
+    EDIT_POST = auto()
 
 
-def create_post_conversation(pattern):
+def create_post_conversation():
     return ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(create_post, pattern=pattern),
+            CallbackQueryHandler(_show_types, pattern=patterns.CREATE_POST),
+            CallbackQueryHandler(
+                _ask_for_title(pattern=patterns.REQUEST_HELP),
+                pattern=patterns.REQUEST_HELP,
+            ),
+            CallbackQueryHandler(
+                _ask_for_title(pattern=patterns.OFFER_HELP),
+                pattern=patterns.OFFER_HELP,
+            ),
         ],
         states={
-            State.TYPE: [
-                CallbackQueryHandler(handle_type)
+            State.TITLE: [
+                CallbackQueryHandler(_ask_for_title()),
             ],
-            State.CATEGORIES: [
-                CallbackQueryHandler(handle_categories_done, pattern=patterns.DONE),
-                CallbackQueryHandler(handle_pick_category),
+            State.DESCRIPTION: [
+                MessageHandler(Filters.text, _ask_for_description),
+            ],
+            State.ASK_CATEGORIES: [
+                MessageHandler(Filters.text, _show_categories())
+            ],
+            State.CHOOSE_CATEGORIES: [
+                CallbackQueryHandler(_categories_done(), pattern=patterns.DONE),
+                CallbackQueryHandler(_pick_category()),
             ],
             State.LOCATION: [
-                CallbackQueryHandler(handle_no_location),
-                MessageHandler(Filters.location | Filters.text, confirm_location),
+                CallbackQueryHandler(_no_location()),
+                MessageHandler(Filters.location | Filters.text, _confirm_location()),
             ],
-            State.SHOWPOST: [
-                handlers.ViewPostsQueryHandler,
-            ]
+            State.VISIBILITY: [
+                CallbackQueryHandler(_ask_for_visibility),
+            ],
+            State.DURATION: [
+                CallbackQueryHandler(_ask_for_duration),
+            ],
+            State.PREVIEW: [
+                CallbackQueryHandler(_preview),
+            ],
+            State.CONFIRM_PREVIEW: [
+                CallbackQueryHandler(_confirm_preview),
+            ],
+            State.SUBMIT_POST: [
+                CallbackQueryHandler(_submit_post),
+            ],
+            State.EDIT_POST: [
+                CallbackQueryHandler(_edit_post),
+            ],
         },
         fallbacks=[handlers.MainMenuCmdHandler],
-        name="help_handler",
-        allow_reentry=True
+        name="create_post_handler",
+        allow_reentry=True,
     )
 
 
-def create_post(update, context):
-    reply = "Do you want to make a post to Offer Help or Request Help?"
-    util.reply_to_callback_query(
+def _show_types(update, context):
+    if not user_data.is_user_signed_in(context=context):
+        ask_user_to_sign_in(update, context)
+        return ConversationHandler.END
+    util.reply(
         update=update,
         context=context,
-        text=reply,
+        text="Do you want to create a post to Offer Help or Request Help?",
         keyboard=keyboards.request_or_offer(),
     )
-    return State.TYPE
+    return State.ASK_CATEGORIES,
 
 
-def handle_type(update, context):
-    """Handle uses chooses to request or offer help"""
-    pattern = update.callback_query.data
-    objective = "request" if pattern == patterns.OFFER_HELP else "offer"
-    context.user_data['objective'] = objective
-    util.reply_to_callback_query(
-        update=update,
-        context=context,
-        text='What type of help would you like to offer?'
+def _show_categories():
+    def handle_previous(update, context):
+        context.user_data[user_data.POST_DESCRIPTION] = update.message.text
+
+    return get_show_categories_callback(
+        text='What type of help would you like to {}?'
              ' Please choose all the relevant tags and click done',
-        keyboard=keyboards.help_categories(),
+        state=_state_after(State.ASK_CATEGORIES),
+        handle_previous=handle_previous,
     )
-    return State.CATEGORIES
 
 
-def handle_pick_category(update, context):
-    """Handle user picks a help category"""
-    categories = context.user_data.get(CATEGORIES_KEY, set())
-    categories.add(update.callback_query.data)
-    context.user_data[CATEGORIES_KEY] = categories
-    update.callback_query.edit_message_reply_markup(
-        reply_markup=keyboards.checklist(
-            keyboards.help_categories(),
-            categories,
-        ),
+def _pick_category():
+    return get_handle_pick_category_callback(
+        state=State.CHOOSE_CATEGORIES,
     )
-    return State.CATEGORIES
 
 
-def handle_categories_done(update, context):
-    """Handle user is done picking help categories"""
-    util.reply_to_callback_query(
-        update=update,
-        context=context,
+def _categories_done():
+    return get_handle_categories_done_callback(
         text='Please let us know your location so we can show the posts of your area! '
              'Either type in your address manually or share it using the 📎 below. '
              'If you don\'t want to share your location, click the button below.',
-        keyboard=keyboards.no_location(),
+        state=_state_after(State.CHOOSE_CATEGORIES),
     )
-    return State.LOCATION
 
 
-def confirm_location(update, context):
-    context.user_data['location'] = get_location_from_message(update.message)
+def _no_location():
+    return get_no_location_callback(
+        state=_state_after(State.LOCATION),
+    )
 
-    if context.user_data['objective'] == "request":
-        text = "Your current location is shown above. Do you want help in this location?"
+
+def _confirm_location():
+    return get_confirm_location_callback(
+        state=_state_after(State.LOCATION),
+        text="Your current location is shown above. Do you want to {} help in this location?"
+    )
+
+
+def _ask_for_title(pattern=None):
+    def ask_for_title(update, context):
+        if not user_data.is_user_signed_in(context=context):
+            ask_user_to_sign_in(update, context)
+            return ConversationHandler.END
+        _reset_create_post_user_data(context=context)
+        if pattern is None:
+            local_pattern = update.callback_query.data
+        else:
+            local_pattern = pattern
+        context.user_data[user_data.POST_OBJECTIVE] = user_data.objective_from_pattern(local_pattern)
+        util.reply(
+            update=update,
+            context=context,
+            text='What is the title of your post? (60 characters or less)',
+        )
+        return _state_after(State.TITLE)
+    return ask_for_title
+
+
+def _reset_create_post_user_data(context):
+    for key in user_data.POST_INFO:
+        context.user_data.pop(key, None)
+
+
+def _ask_for_description(update, context):
+    context.user_data[user_data.POST_TITLE] = update.message.text
+    util.reply(
+        update=update,
+        context=context,
+        text='What is the description of your post?',
+    )
+    return _state_after(State.DESCRIPTION)
+
+
+def _ask_for_visibility(update, context):
+    location = _get_user_location(context=context)
+    if location is None:
+        text = 'Since you have not specific a location this post will be shown worldwide.'
+        keyboard = keyboards.continue_keyboard()
     else:
-        text = "Your current location is shown above. Do you want to offer help in this location?"
-    reply_markup = keyboards.confirm_location()
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
+        text = 'What is the visibility of your post?'
+        keyboard = keyboards.visibility()
+    util.reply(
+        update=update,
+        context=context,
         text=text,
-        reply_markup=reply_markup,
+        keyboard=keyboard,
     )
-    return State.SHOWPOST
+    return _state_after(State.VISIBILITY)
 
 
-def get_location_from_message(message):
-    if message.location:
-        return message.location
-    elif message.text:
-        raise NotImplementedError
+def _ask_for_duration(update, context):
+    visibility = update.callback_query.data
+    if visibility == patterns.CONTINUE:
+        visibility = "Wordwide"
+    context.user_data[user_data.POST_VISIBILITY] = visibility
+    util.reply(
+        update=update,
+        context=context,
+        text='What is the duration of your post?',
+        keyboard=keyboards.duration(),
+    )
+    return _state_after(State.DURATION)
+
+
+def _preview(update, context):
+    context.user_data[user_data.POST_DURATION] = update.callback_query.data
+    util.reply(
+        update=update,
+        context=context,
+        text='Press preview to preview your post',
+        keyboard=keyboards.preview(),
+    )
+    return _state_after(State.PREVIEW)
+
+
+def _confirm_preview(update, context):
+    text = _format_preview(context=context)
+    # TODO handle preview reply properly
+    warning = "\n\nTODO rest of conversation not implemented yet"
+    text += warning
+    util.reply(
+        update=update,
+        context=context,
+        text=text,
+        # TODO should add keyboard so user can edit or submit etc
+    )
+    logging.warning(warning)
+    # TODO should then check if user wants to edit or submit
+    return State.SUBMIT_POST
+
+
+def _format_preview(context):
+    title = context.user_data[user_data.POST_TITLE]
+    content = context.user_data[user_data.POST_DESCRIPTION]
+    categories = context.user_data[user_data.POST_CATEGORIES]
+    location = context.user_data.get(user_data.LOCATION)
+    user_name = context.user_data[user_data.USERNAME]
+    return _format_preview_from_data(
+        title=title,
+        content=content,
+        categories=categories,
+        user_name=user_name,
+        location=location,
+    )
+
+
+def _format_preview_from_data(title, content, categories, user_name, location=None):
+    data = {
+        "post": {
+            "title": title,
+            "author": {
+                "name": user_name,
+                "location": location,
+            },
+            "categories": categories,
+            "content": content,
+        },
+        "numComments": 0,
+    }
+    return views.Post(post_json=data).display()
+
+
+def _submit_post(update, context):
     raise NotImplementedError
 
 
-def handle_no_location(update, context):
-    """User does not want to share location, proceed to show posts"""
-    util.reply_to_callback_query(
-        update=update,
-        context=context,
-        text="No location given, is this correct?",
-        keyboard=keyboards.confirm_location(),
-    )
-    return State.SHOWPOST
+def _edit_post(update, context):
+    raise NotImplementedError
 
 
-CreatePostConvHandler = create_post_conversation(pattern=patterns.CREATE_POST)
+def _state_after(current_state):
+    states = list(State)
+    for i, state in enumerate(states):
+        if state == current_state:
+            return states[i + 1]
+
+
+def _get_user_location(context):
+    return context.user_data.get(user_data.LOCATION)
+
+
+CreatePostConvHandler = create_post_conversation()
