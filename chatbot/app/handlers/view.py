@@ -368,7 +368,7 @@ def _show_user_single_post(update, post_id):
 def _get_header_message_with_categories(context):
     formatted_categories = ", ".join(context.user_data[user_data.POST_CATEGORIES])
     page = _get_current_user_page(context)
-    objective = context.user_date['objective']
+    objective = context.user_data[user_data.POST_OBJECTIVE]
     return f"Page {page} . Viewing {objective} posts for {formatted_categories} help category."
 
 

@@ -5,10 +5,12 @@ USER_ID = 'user_id'
 USERNAME = 'username'
 TOKEN = 'token'
 LOCATION = 'location'
+AUTHOR = 'author'
+AUTHOR_NAME = 'name'
 
-POST_TITLE = "post_title"
-POST_DESCRIPTION = "post_description"
-POST_CATEGORIES = "categories"
+POST_TITLE = "title"
+POST_DESCRIPTION = "content"
+POST_CATEGORIES = "types"
 POST_VISIBILITY = "post_visibility"
 POST_DURATION = "post_duration"
 POST_OBJECTIVE = "post_objective"

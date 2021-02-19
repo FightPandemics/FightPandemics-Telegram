@@ -1,4 +1,6 @@
 import abc
+import logging
+from chatbot.app import user_data
 
 
 class AbstractPost(abc.ABC):
@@ -9,21 +11,23 @@ class AbstractPost(abc.ABC):
         """
         self._post_json = post_json
 
-        self.title = self._extract_field('title')
-        author_data = self._extract_field('author')
-        self.author = author_data['name']
-        self.categories = self._extract_field('categories')
-        self.content = self._extract_field('content')
-        self.title = self._extract_field('title')
-        self.location = self._extract_location(author_data['location'])
-        self.num_comments = self._extract_num_comments()
+        self.title = self._extract_field(user_data.POST_TITLE)
+        author_data = self._extract_field(user_data.AUTHOR)
+        self.author = author_data[user_data.AUTHOR_NAME]
+        self.categories = self._extract_field(user_data.POST_CATEGORIES)
+        self.content = self._extract_field(user_data.POST_DESCRIPTION)
+        self.location = self._extract_location(author_data[user_data.LOCATION])
+        self.num_comments = self._extract_field('commentsCount')
 
     def _extract_field(self, field):
         data = self._get_data_from_post_json()
+        value = data.get(field)
+        if value is None:
+            logging.warning("No field {field} in data")
         return data[field]
 
     @abc.abstractmethod
-    def _get_data_from_post_json(self):
+    def _get_data_from_post_json(self) -> dict:
         pass
 
     @staticmethod
@@ -37,9 +41,6 @@ class AbstractPost(abc.ABC):
             if entry is not None:
                 location.append(entry)
         return location
-
-    def _extract_num_comments(self):
-        return str(self._post_json['numComments'])
 
     def display(self):
         """ Format UserPost in the following format to display on the UI

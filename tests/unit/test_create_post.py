@@ -89,7 +89,7 @@ def test_create_post(
         BotReply(
             text=_format_preview_from_data(
                 title=post_title,
-                content=post_description,
+                description=post_description,
                 categories=[post_category],
                 user_name=user_name,
             ) + '\n\nTODO rest of conversation not implemented yet',

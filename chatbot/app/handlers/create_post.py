@@ -238,20 +238,20 @@ def _confirm_preview(update, context):
 
 def _format_preview(context):
     title = context.user_data[user_data.POST_TITLE]
-    content = context.user_data[user_data.POST_DESCRIPTION]
+    description = context.user_data[user_data.POST_DESCRIPTION]
     categories = context.user_data[user_data.POST_CATEGORIES]
     location = context.user_data.get(user_data.LOCATION)
     user_name = context.user_data[user_data.USERNAME]
     return _format_preview_from_data(
         title=title,
-        content=content,
+        description=description,
         categories=categories,
         user_name=user_name,
         location=location,
     )
 
 
-def _format_preview_from_data(title, content, categories, user_name, location=None):
+def _format_preview_from_data(title, description, categories, user_name, location=None):
     data = {
         "post": {
             "title": title,
@@ -260,7 +260,7 @@ def _format_preview_from_data(title, content, categories, user_name, location=No
                 "location": location,
             },
             "categories": categories,
-            "content": content,
+            "description": description,
         },
         "numComments": 0,
     }
