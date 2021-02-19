@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -8,10 +9,14 @@ except ImportError:
 
 
 PATH_TO_HERE = os.path.abspath(os.path.dirname(__file__))
-PATH_TO_TOKEN_FILE = os.path.join(PATH_TO_HERE, "..", "..", "token_data.yaml")
+PATH_TO_ROOT = os.path.join(PATH_TO_HERE, "..", "..")
+PATH_TO_TOKEN_FILE = os.path.join(PATH_TO_ROOT, "token_data.yaml")
+PATH_TO_DEFAULT_TOKEN_FILE = os.path.join(PATH_TO_ROOT, "token_data.default.yaml")
 
 
 def load_token_file_data():
+    if not os.path.exists(PATH_TO_TOKEN_FILE):
+        shutil.copy(PATH_TO_DEFAULT_TOKEN_FILE, PATH_TO_TOKEN_FILE)
     with open(PATH_TO_TOKEN_FILE) as f:
         data = load(f, Loader=Loader)
     return data
