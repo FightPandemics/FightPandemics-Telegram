@@ -254,15 +254,15 @@ def _format_preview(context):
 def _format_preview_from_data(title, description, categories, user_name, location=None):
     data = {
         "post": {
-            "title": title,
-            "author": {
-                "name": user_name,
-                "location": location,
+            user_data.POST_TITLE: title,
+            user_data.AUTHOR: {
+                user_data.AUTHOR_NAME: user_name,
+                user_data.LOCATION: location,
             },
-            "categories": categories,
-            "description": description,
+            user_data.POST_CATEGORIES: categories,
+            user_data.POST_DESCRIPTION: description,
+            user_data.NUM_COMMENTS: 0,
         },
-        "numComments": 0,
     }
     return views.Post(post_json=data).display()
 

@@ -15,6 +15,8 @@ POST_VISIBILITY = "post_visibility"
 POST_DURATION = "post_duration"
 POST_OBJECTIVE = "post_objective"
 
+NUM_COMMENTS = "commentsCount"
+
 VIEW_PAGE_ID = 'page_id'
 VIEW_POST_ID = 'post_id'
 VIEW_POST_IDS = 'post_ids'

@@ -1,6 +1,6 @@
 import random
 
-from chatbot.app import keyboards
+from chatbot.app import keyboards, constants
 from chatbot.app.fp_api_manager import VALID_STATUS_CODES
 
 from .conversation import (
@@ -14,7 +14,7 @@ from .request_calls import (
     ANY,
 )
 
-LOGIN_URL = 'http://127.0.0.1:8000/api/auth/login'
+LOGIN_URL = f'{constants.FP_BASE_URL}auth/login'
 
 
 def test_correct_login(mock_bot, mock_requests):

@@ -17,7 +17,7 @@ class AbstractPost(abc.ABC):
         self.categories = self._extract_field(user_data.POST_CATEGORIES)
         self.content = self._extract_field(user_data.POST_DESCRIPTION)
         self.location = self._extract_location(author_data[user_data.LOCATION])
-        self.num_comments = self._extract_field('commentsCount')
+        self.num_comments = self._extract_field(user_data.NUM_COMMENTS)
 
     def _extract_field(self, field):
         data = self._get_data_from_post_json()
