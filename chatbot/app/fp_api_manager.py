@@ -65,7 +65,7 @@ def get_posts(payload):
 
 
 def get_post(post_id):
-    url = FP_BASE_URL + "posts/" + post_id
+    url = FP_BASE_URL + f"posts/{post_id}"
 
     with requests.Session() as s:
         return _try_get(s, url)
@@ -76,6 +76,13 @@ def get_current_user_profile(token):
 
     with requests.Session() as s:
         s.headers['Authorization'] = 'Bearer {}'.format(token)
+        return _try_get(s, url)
+
+
+def get_user_profile(user_id):
+    url = FP_BASE_URL + f"users/{user_id}"
+
+    with requests.Session() as s:
         return _try_get(s, url)
 
 

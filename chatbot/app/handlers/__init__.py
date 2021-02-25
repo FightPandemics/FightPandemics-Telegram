@@ -1,5 +1,6 @@
 from .mainmenu import (
     MainMenuCmdHandler,
+    MainMenuQueryHandler,
 )
 from .info import (
     HelpCmdHandler,
@@ -14,6 +15,8 @@ from .view import (
     ViewMyPostsQueryHandler,
     DisplaySelectedPostsQueryHandler,
     ViewPostsConvHandler,
+    ViewAuthorProfileQueryHandler,
+    GoBackViewAuthorQueryHandler,
 )
 from .create_post import (
     CreatePostConvHandler,

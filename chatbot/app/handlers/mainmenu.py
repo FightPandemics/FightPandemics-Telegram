@@ -1,6 +1,7 @@
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from chatbot.app import keyboards, user_data
+from chatbot.app import keyboards, user_data, patterns
+from chatbot.app.handlers import util
 
 
 def main_menu(update, context):
@@ -10,10 +11,13 @@ def main_menu(update, context):
     user_signed_in = user_data.is_user_signed_in(context=context)
     if not user_signed_in:
         text += " To see more options, create posts etc you need to first login."
-    update.message.reply_text(
+    util.reply(
+        update=update,
+        context=context,
         text=text,
-        reply_markup=keyboards.main_menu(user_signed_in),
+        keyboard=keyboards.main_menu(user_signed_in),
     )
 
 
 MainMenuCmdHandler = CommandHandler("mainmenu", main_menu)
+MainMenuQueryHandler = CallbackQueryHandler(main_menu, pattern=patterns.MAINMENU)

@@ -12,11 +12,12 @@ class AbstractPost(abc.ABC):
         self._post_json = post_json
 
         self.title = self._extract_field(user_data.POST_TITLE)
-        author_data = self._extract_field(user_data.AUTHOR)
-        self.author = author_data[user_data.AUTHOR_NAME]
+        self.author_data = self._extract_field(user_data.AUTHOR)
+        self.author_id = self.author_data[user_data.AUTHOR_ID]
+        self.author = self.author_data[user_data.AUTHOR_NAME]
         self.categories = self._extract_field(user_data.POST_CATEGORIES)
         self.content = self._extract_field(user_data.POST_DESCRIPTION)
-        self.location = self._extract_location(author_data[user_data.LOCATION])
+        self.location = self._extract_location(self.author_data[user_data.LOCATION])
         self.num_comments = self._extract_field(user_data.NUM_COMMENTS)
 
     def _extract_field(self, field):
@@ -76,10 +77,10 @@ class UserPost(AbstractPost):
 class UserProfile(object):
 
     def __init__(self, json_data):
-        self.email = json_data['email']
+        self.email = json_data.get('email')
         self.firstName = json_data['firstName']
         self.lastName = json_data['lastName']
-        self.address = json_data['location']['address']
+        self.address = json_data['location'].get('address')
         self.is_volunteer = "No"
         if json_data['objectives']['volunteer']:
             self.is_volunteer = "Yes"

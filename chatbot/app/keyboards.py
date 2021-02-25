@@ -113,9 +113,17 @@ def view_posts():
 
 
 def display_selected_post():
-    _construct_inline_keyboard([[
+    return _construct_inline_keyboard([[
         patterns.SEE_COMMENTS, patterns.VIEW_AUTHOR_PROFILE, patterns.POST_COMMENT
     ]])
+
+
+def view_author():
+    return InlineKeyboardMarkup([[
+        _construct_inline_button(patterns.MAINMENU),
+        InlineKeyboardButton('Go Back', callback_data=patterns.GO_BACK_VIEW_AUTHOR)
+    ]])
+
 
 
 def no_location():
