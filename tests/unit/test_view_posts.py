@@ -1,7 +1,7 @@
 import pytest
 
-from chatbot.app import keyboards
-from chatbot.app.fp_api_manager import VALID_STATUS_CODE
+from chatbot.app import keyboards, user_data
+from chatbot.app.fp_api_manager import VALID_STATUS_CODES
 from .conversation import (
     UserAction,
     BotReply,
@@ -13,18 +13,18 @@ from .login import login_user
 
 TEST_POST_DATA = {
     '_id': 0,
-    'title': 'Test Post',
-    'author': {
-        'name': 'Test Name',
-        'location': {
+    user_data.POST_TITLE: 'Test Post',
+    user_data.AUTHOR: {
+        user_data.AUTHOR_NAME: 'Test Name',
+        user_data.LOCATION: {
             'city': 'Test City',
             'state': 'Test State',
             'country': 'Test Country',
         },
     },
-    'categories': ['category1'],
-    'content': "This is my test post",
-    'numComments': 10,
+    user_data.POST_CATEGORIES: ['category1'],
+    user_data.POST_DESCRIPTION: "This is my test post",
+    user_data.NUM_COMMENTS: 10,
 }
 
 EXPECTED_RESPONSE_HEADER = "Page {page_nr} of your posts\n\n"
@@ -59,7 +59,7 @@ def test_view_my_posts(mock_bot, mock_requests, num_posts):
 
     mock_requests.add_upcoming_post_return(
         response=[TEST_POST_DATA] * num_posts,
-        status_code=VALID_STATUS_CODE
+        status_code=VALID_STATUS_CODES[0],
     )
 
     conversation = [

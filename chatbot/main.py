@@ -38,6 +38,7 @@ def main(log_level="INFO"):
     # Conversation handlers
     dp.add_handler(handlers.LoginConvHandler)
     dp.add_handler(handlers.CreatePostConvHandler)
+    dp.add_handler(handlers.ViewPostsConvHandler)
 
     # Callback query handlers
     dp.add_handler(handlers.AboutQueryHandler)

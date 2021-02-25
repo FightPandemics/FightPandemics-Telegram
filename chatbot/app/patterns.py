@@ -9,6 +9,8 @@ LOGIN = "Login"
 SIGNOUT = "Signout"
 
 DONE = "Done"
+CONTINUE = "Continue"
+PREVIEW = "Preview"
 
 LOCATION = "Location"
 SHOWPOST = "Show Post"
@@ -20,5 +22,8 @@ SHOW_CURRENT_POST = "Show Current Post"
 SEE_COMMENTS = "See Comments"
 VIEW_AUTHOR_PROFILE = "View Author Profile"
 POST_COMMENT = "Post Comment"
+
+REQUEST_HELP_POSTS = "Posts that request help"
+OFFER_HELP_POSTS = "Posts that offer help"
 
 DISPLAY_SELECTED_POST = "display_selected_post"

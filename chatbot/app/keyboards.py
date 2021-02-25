@@ -18,12 +18,6 @@ CATEGORY_BUTTONS = [
 # Flatten grid
 CATEGORIES = [b for row in CATEGORY_BUTTONS for b in row]
 
-BASE_MAIN_MENU_BUTTONS = [
-    [patterns.REQUEST_HELP, patterns.OFFER_HELP],
-    [patterns.VIEW_MY_POSTS, patterns.VIEW_MY_PROFILE],
-    [patterns.CREATE_POST, patterns.ABOUT_FIGHTPANDEMICS],
-]
-
 
 def _construct_inline_button(button_text: str) -> InlineKeyboardButton:
     return InlineKeyboardButton(
@@ -40,16 +34,27 @@ def _construct_inline_keyboard(buttons: List[List[str]]) -> InlineKeyboardMarkup
 
 
 # define all keyboards here.
+
+
 def request_or_offer():
     """keyboard to choose to request or offer help"""
     return _construct_inline_keyboard([[patterns.REQUEST_HELP, patterns.OFFER_HELP]])
 
 
+def request_or_offer_posts():
+    """keyboard to choose request or offer help posts"""
+    return _construct_inline_keyboard([[patterns.REQUEST_HELP_POSTS, patterns.OFFER_HELP_POSTS]])
+
+
 def help_categories():
     """keyboard for choosing help categories"""
+    return _construct_inline_keyboard(_help_categories_buttons())
+
+
+def _help_categories_buttons():
     buttons = CATEGORY_BUTTONS[:]
     buttons.append([patterns.DONE])
-    return _construct_inline_keyboard(buttons)
+    return buttons
 
 
 def main_menu(is_user_signed_in: bool):
@@ -57,11 +62,19 @@ def main_menu(is_user_signed_in: bool):
 
 
 def _main_menu_buttons(is_user_signed_in: bool) -> List[List[str]]:
-    buttons = BASE_MAIN_MENU_BUTTONS[:]
+    buttons = [
+        [patterns.REQUEST_HELP, patterns.OFFER_HELP],
+        [patterns.VIEW_POSTS, patterns.ABOUT_FIGHTPANDEMICS],
+    ]
     if is_user_signed_in:
-        buttons.append([patterns.SIGNOUT])
+        buttons += [
+            [patterns.VIEW_MY_POSTS, patterns.VIEW_MY_PROFILE],
+            [patterns.SIGNOUT],
+        ]
     else:
-        buttons.append([patterns.LOGIN])
+        buttons += [
+            [patterns.LOGIN],
+        ]
     return buttons
 
 
@@ -117,3 +130,37 @@ def confirm_location():
 
 def create_post():
     return _construct_inline_keyboard([[patterns.CREATE_POST]])
+
+
+def preview():
+    return _construct_inline_keyboard([[patterns.PREVIEW]])
+
+
+def continue_keyboard():
+    return _construct_inline_keyboard([[patterns.CONTINUE]])
+
+
+def visibility():
+    return _construct_inline_keyboard(_visibility_buttons())
+
+
+def _visibility_buttons():
+    return [[
+        "City",
+        "State",
+        "Country",
+        "Wordwide",
+    ]]
+
+
+def duration():
+    return _construct_inline_keyboard(_duration_buttons())
+
+
+def _duration_buttons():
+    return [[
+        "Day",
+        "Week",
+        "Month",
+        "Forever",
+    ]]

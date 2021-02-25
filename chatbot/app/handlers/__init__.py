@@ -13,7 +13,7 @@ from .view import (
     ViewMyProfileQueryHandler,
     ViewMyPostsQueryHandler,
     DisplaySelectedPostsQueryHandler,
-    ViewPostsQueryHandler,
+    ViewPostsConvHandler,
 )
 from .create_post import (
     CreatePostConvHandler,

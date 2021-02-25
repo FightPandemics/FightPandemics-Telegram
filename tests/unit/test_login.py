@@ -1,7 +1,7 @@
 import random
 
-from chatbot.app import keyboards
-from chatbot.app.fp_api_manager import VALID_STATUS_CODE
+from chatbot.app import keyboards, constants
+from chatbot.app.fp_api_manager import VALID_STATUS_CODES
 
 from .conversation import (
     UserAction,
@@ -9,6 +9,12 @@ from .conversation import (
     Write,
     Click,
 )
+from .request_calls import (
+    PostCall,
+    ANY,
+)
+
+LOGIN_URL = f'{constants.FP_BASE_URL}auth/login'
 
 
 def test_correct_login(mock_bot, mock_requests):
@@ -21,7 +27,7 @@ def test_correct_login(mock_bot, mock_requests):
             'user': {'id': user_id},
             'token': token,
         },
-        status_code=VALID_STATUS_CODE,
+        status_code=VALID_STATUS_CODES[0],
     )
 
     # Login conversation
@@ -41,11 +47,18 @@ def test_correct_login(mock_bot, mock_requests):
     ]
 
     mock_bot.assert_conversation(conversation)
+    mock_requests.assert_calls([
+        PostCall(
+            LOGIN_URL,
+            data='{"email": "%s", "password": "%s"}' % (username, password),
+            headers=ANY,
+        ),
+    ])
 
 
 def test_incorrect_login(mock_bot, mock_requests):
     # Response with no entries implying incorrect login
-    mock_requests.add_upcoming_post_return(response={}, status_code=VALID_STATUS_CODE)
+    mock_requests.add_upcoming_post_return(response={}, status_code=VALID_STATUS_CODES[0])
 
     username = "Test Name"
     password = "test_password"
@@ -62,3 +75,10 @@ def test_incorrect_login(mock_bot, mock_requests):
     ]
 
     mock_bot.assert_conversation(conversation)
+    mock_requests.assert_calls([
+        PostCall(
+            LOGIN_URL,
+            data='{"email": "%s", "password": "%s"}' % (username, password),
+            headers=ANY,
+        ),
+    ])
