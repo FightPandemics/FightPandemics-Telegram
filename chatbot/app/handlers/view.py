@@ -34,7 +34,8 @@ def view_my_profile(update, context):
         return
 
     response = fpapi.get_current_user_profile(token=token)
-    _assert_not_error(response)
+    if _is_error(response):
+        raise ConnectionError("Could not get current profile")  # TODO handle errors better
     user_info_view = views.UserProfile(response).display()
     update.effective_message.reply_text(text=user_info_view)
 
@@ -187,7 +188,8 @@ def _get_posts(context, payload):
     # keep a copy of post_payload in user_data for future calls - TODO is it used?
     context.user_data[user_data.VIEW_POST_PAYLOAD] = payload
     posts = fpapi.get_posts(payload)
-    _assert_not_error(posts)
+    if _is_error(posts):
+        raise ConnectionError("Could not get posts")  # TODO handle errors better
     return posts
 
 
@@ -356,7 +358,8 @@ def _get_real_post_id(context, user_choice):
 
 def _show_user_single_post(update, context, post_id):
     post = fpapi.get_post(post_id)
-    _assert_not_error(post)
+    if _is_error(post):
+        raise ConnectionError("Could not get post")  # TODO handle errors better
     reply_text = views.Post(post_json=post).display()
     util.reply(
         update=update,
@@ -366,9 +369,8 @@ def _show_user_single_post(update, context, post_id):
     )
 
 
-def _assert_not_error(post):
-    if isinstance(post, fpapi.Error):  # TODO handle error better
-        raise ConnectionError("Could not get post")
+def _is_error(post):
+    return isinstance(post, fpapi.Error)
 
 
 def _get_header_message_with_categories(context):
@@ -381,7 +383,6 @@ def _get_header_message_with_categories(context):
 def _get_header_message_user_posts(context):
     page = _get_current_user_page(context)
     return f"Page {page} of your posts"
-
 
 
 def view_author_profile(update, context):
@@ -409,10 +410,12 @@ def handle_go_back_view_author(update, context):
 
 def _get_author_profile_from_post_id(post_id):
     raw_post = fpapi.get_post(post_id)
-    _assert_not_error(raw_post)
+    if _is_error(raw_post):
+        raise ConnectionError("Could not get post")  # TODO handle errors better
     post = views.Post(post_json=raw_post)
     response = fpapi.get_user_profile(user_id=post.author_id)
-    _assert_not_error(response)
+    if _is_error(response):
+        raise ConnectionError("Could not get user profile")  # TODO handle errors better
     return views.UserProfile(response)
 
 

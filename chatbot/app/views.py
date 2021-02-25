@@ -13,7 +13,7 @@ class AbstractPost(abc.ABC):
 
         self.title = self._extract_field(user_data.POST_TITLE)
         self.author_data = self._extract_field(user_data.AUTHOR)
-        self.author_id = self.author_data[user_data.AUTHOR_ID]
+        self.author_id = self.author_data.get(user_data.AUTHOR_ID)
         self.author = self.author_data[user_data.AUTHOR_NAME]
         self.categories = self._extract_field(user_data.POST_CATEGORIES)
         self.content = self._extract_field(user_data.POST_DESCRIPTION)

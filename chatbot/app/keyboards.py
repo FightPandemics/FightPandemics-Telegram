@@ -125,7 +125,6 @@ def view_author():
     ]])
 
 
-
 def no_location():
     return InlineKeyboardMarkup([[
         InlineKeyboardButton('I don\'t want to share my location right now', callback_data='view_posts'),
