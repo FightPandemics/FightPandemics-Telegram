@@ -1,3 +1,5 @@
+MAINMENU = "Main Menu"
+
 OFFER_HELP = "Offer Help"
 REQUEST_HELP = "Request Help"
 VIEW_MY_POSTS = "View My Posts"
@@ -27,3 +29,4 @@ REQUEST_HELP_POSTS = "Posts that request help"
 OFFER_HELP_POSTS = "Posts that offer help"
 
 DISPLAY_SELECTED_POST = "display_selected_post"
+GO_BACK_VIEW_AUTHOR = "go_back_view_author"

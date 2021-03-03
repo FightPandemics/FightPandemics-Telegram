@@ -7,6 +7,7 @@ TOKEN = 'token'
 LOCATION = 'location'
 AUTHOR = 'author'
 AUTHOR_NAME = 'name'
+AUTHOR_ID = 'id'
 
 POST_TITLE = "title"
 POST_DESCRIPTION = "content"

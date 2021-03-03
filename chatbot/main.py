@@ -41,11 +41,14 @@ def main(log_level="INFO"):
     dp.add_handler(handlers.ViewPostsConvHandler)
 
     # Callback query handlers
+    dp.add_handler(handlers.MainMenuQueryHandler)
     dp.add_handler(handlers.AboutQueryHandler)
     dp.add_handler(handlers.SignoutQueryHandler)
     dp.add_handler(handlers.ViewMyProfileQueryHandler)
     dp.add_handler(handlers.ViewMyPostsQueryHandler)
     dp.add_handler(handlers.DisplaySelectedPostsQueryHandler)
+    dp.add_handler(handlers.ViewAuthorProfileQueryHandler)
+    dp.add_handler(handlers.GoBackViewAuthorQueryHandler)
 
     # To start polling Telegram for any chat updates on Telegram
     updater.start_polling()

@@ -18,7 +18,9 @@ or if you have make
 make install
 ```
 
-3. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in `token_data.yaml` file (the other constants below are only needed to run the tests)
+3. Copy `token_data.default.yaml` to `token_data.yaml`.
+
+4. Generate a chatbot token  and update `TELEGRAM_TOKEN` value in `token_data.yaml` file (the other constants below are only needed to run the tests)
    
    Follow the below steps which are already mentioned in the main.py file in the package.
  - Import logging library to connect and authenticate bot with Telegram API

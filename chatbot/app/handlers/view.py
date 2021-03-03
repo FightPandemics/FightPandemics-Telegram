@@ -1,4 +1,5 @@
 import json
+import logging
 from enum import Enum, auto
 
 from telegram.ext import (
@@ -33,8 +34,8 @@ def view_my_profile(update, context):
         return
 
     response = fpapi.get_current_user_profile(token=token)
-    if isinstance(response, fpapi.Error):  # TODO handle error better
-        raise ConnectionError("Could not get user profile")
+    if _is_error(response):
+        raise ConnectionError("Could not get current profile")  # TODO handle errors better
     user_info_view = views.UserProfile(response).display()
     update.effective_message.reply_text(text=user_info_view)
 
@@ -187,8 +188,8 @@ def _get_posts(context, payload):
     # keep a copy of post_payload in user_data for future calls - TODO is it used?
     context.user_data[user_data.VIEW_POST_PAYLOAD] = payload
     posts = fpapi.get_posts(payload)
-    if isinstance(posts, fpapi.Error):  # TODO handle error better
-        raise ConnectionError("Could not get posts")
+    if _is_error(posts):
+        raise ConnectionError("Could not get posts")  # TODO handle errors better
     return posts
 
 
@@ -320,6 +321,7 @@ def _handle_post_id_choice(update, context, user_choice):
     _update_user_post_id(context, post_id=post_id)
     _show_user_single_post(
         update=update,
+        context=context,
         post_id=post_id,
     )
 
@@ -354,15 +356,21 @@ def _get_real_post_id(context, user_choice):
     return context.user_data[user_data.VIEW_POST_IDS][int(user_choice) - 1]
 
 
-def _show_user_single_post(update, post_id):
+def _show_user_single_post(update, context, post_id):
     post = fpapi.get_post(post_id)
-    if isinstance(post, fpapi.Error):  # TODO handle error better
-        raise ConnectionError("Could not get post")
+    if _is_error(post):
+        raise ConnectionError("Could not get post")  # TODO handle errors better
     reply_text = views.Post(post_json=post).display()
-    update.effective_message.reply_text(
+    util.reply(
+        update=update,
+        context=context,
         text=reply_text,
-        reply_markup=keyboards.display_selected_post(),
+        keyboard=keyboards.display_selected_post(),
     )
+
+
+def _is_error(post):
+    return isinstance(post, fpapi.Error)
 
 
 def _get_header_message_with_categories(context):
@@ -377,7 +385,43 @@ def _get_header_message_user_posts(context):
     return f"Page {page} of your posts"
 
 
+def view_author_profile(update, context):
+    post_id = context.user_data.get(user_data.VIEW_POST_ID)
+    if post_id is None:
+        logging.warning("No post ID to view author for")
+        return
+    author = _get_author_profile_from_post_id(post_id=post_id)
+    util.reply(
+        update=update,
+        context=context,
+        text=author.display(),
+        keyboard=keyboards.view_author(),
+    )
+
+
+def handle_go_back_view_author(update, context):
+    post_id = context.user_data[user_data.VIEW_POST_ID]
+    _show_user_single_post(
+        update=update,
+        context=context,
+        post_id=post_id,
+    )
+
+
+def _get_author_profile_from_post_id(post_id):
+    raw_post = fpapi.get_post(post_id)
+    if _is_error(raw_post):
+        raise ConnectionError("Could not get post")  # TODO handle errors better
+    post = views.Post(post_json=raw_post)
+    response = fpapi.get_user_profile(user_id=post.author_id)
+    if _is_error(response):
+        raise ConnectionError("Could not get user profile")  # TODO handle errors better
+    return views.UserProfile(response)
+
+
 ViewMyProfileQueryHandler = CallbackQueryHandler(view_my_profile, pattern=patterns.VIEW_MY_PROFILE)
 ViewMyPostsQueryHandler = CallbackQueryHandler(view_my_posts, pattern=patterns.VIEW_MY_POSTS)
 DisplaySelectedPostsQueryHandler = CallbackQueryHandler(display_selected_post, pattern=patterns.DISPLAY_SELECTED_POST)
 ViewPostsConvHandler = view_posts_conversation()
+ViewAuthorProfileQueryHandler = CallbackQueryHandler(view_author_profile, pattern=patterns.VIEW_AUTHOR_PROFILE)
+GoBackViewAuthorQueryHandler = CallbackQueryHandler(handle_go_back_view_author, pattern=patterns.GO_BACK_VIEW_AUTHOR)
